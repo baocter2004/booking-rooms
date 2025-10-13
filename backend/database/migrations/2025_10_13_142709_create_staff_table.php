@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\StaffConst;
+use App\Constants\StaffConst;
 use App\Models\Hotel;
 use App\Models\StaffRole;
 use App\Models\User;

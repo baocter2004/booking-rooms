@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\AppointmentConst;
+use App\Constants\AppointmentConst;
 use App\Models\Service;
 use App\Models\Staff;
 use App\Models\User;

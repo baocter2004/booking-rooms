@@ -1,6 +1,6 @@
 <?php
 
-use App\Enums\RoomConst;
+use App\Constants\RoomConst;
 use App\Models\Hotel;
 use App\Models\RoomType;
 use App\Models\Service;

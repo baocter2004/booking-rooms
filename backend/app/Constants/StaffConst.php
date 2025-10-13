@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Enums;
+namespace App\Constants;
+
 
 class StaffConst
 {
