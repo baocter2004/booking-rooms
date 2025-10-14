@@ -3,26 +3,26 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { UserCog } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 
-export function StaffLogin() {
+export function AdminLogin() {
   const navigate = useNavigate();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate('/staff/dashboard');
+    navigate('/admin/dashboard');
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-green-500/20 via-teal-500/20 to-cyan-500/20 p-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-red-500/20 via-purple-500/20 to-blue-500/20 p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="space-y-1 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-green-500">
-            <UserCog className="h-8 w-8 text-white" />
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-red-500">
+            <ShieldCheck className="h-8 w-8 text-white" />
           </div>
-          <CardTitle className="text-3xl font-bold">Staff Portal</CardTitle>
+          <CardTitle className="text-3xl font-bold">Admin Portal</CardTitle>
           <CardDescription className="text-base">
-            Sign in to access your staff dashboard
+            Sign in to access the admin dashboard
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -32,7 +32,7 @@ export function StaffLogin() {
               <Input
                 id="email"
                 type="email"
-                placeholder="staff@booking.com"
+                placeholder="admin@booking.com"
                 required
                 autoComplete="email"
               />
@@ -60,18 +60,8 @@ export function StaffLogin() {
             </div>
 
             <Button type="submit" className="w-full" size="lg">
-              Sign In as Staff
+              Sign In as Admin
             </Button>
-
-            <div className="text-center text-sm text-muted-foreground">
-              <a href="/admin/login" className="text-primary hover:underline">
-                Admin Login
-              </a>
-              {' | '}
-              <a href="/user/login" className="text-primary hover:underline">
-                User Login
-              </a>
-            </div>
           </form>
         </CardContent>
       </Card>

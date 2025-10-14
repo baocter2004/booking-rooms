@@ -1,6 +1,6 @@
 import { Route } from "react-router-dom";
 import { ProtectedRoute } from "@/components/auth/ProtectedRoute";
-import { UserLogin } from "@/pages/user/Login";
+import { UserLogin } from "@/pages/user/auth/Login";
 import { UserHome } from "@/pages/user/Home";
 import { UserLayout } from "@/layouts/user/UserLayout";
 

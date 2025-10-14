@@ -1,6 +1,6 @@
 import { Route } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { AdminLogin } from '@/pages/admin/Login';
+import { AdminLogin } from '@/pages/admin/auth/Login';
 import { AdminDashboard } from '@/pages/admin/Dashboard';
 import { AdminLayout } from '@/layouts/admin/AdminLayout';
 

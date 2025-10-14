@@ -1,6 +1,6 @@
 import { Route } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
-import { StaffLogin } from '@/pages/staff/Login';
+import { StaffLogin } from '@/pages/staff/auth/Login';
 import { StaffDashboard } from '@/pages/staff/Dashboard';
 import { StaffLayout } from '@/layouts/staff/StaffLayout';
 
