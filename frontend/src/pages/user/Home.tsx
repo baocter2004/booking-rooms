@@ -1,90 +1,72 @@
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Search, Star, MapPin, Calendar } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Search, Star, MapPin, Calendar } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 export function UserHome() {
   const featuredHotels = [
     {
-      name: "Grand Plaza Hotel",
-      location: "New York, USA",
+      name: 'Grand Plaza Hotel',
+      location: 'New York, USA',
       rating: 4.8,
       price: 250,
-      image:
-        "https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400",
+      image: 'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=400',
     },
     {
-      name: "Sunset Beach Resort",
-      location: "Malibu, California",
+      name: 'Sunset Beach Resort',
+      location: 'Malibu, California',
       rating: 4.9,
       price: 350,
-      image:
-        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400",
+      image: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=400',
     },
     {
-      name: "Mountain View Lodge",
-      location: "Aspen, Colorado",
+      name: 'Mountain View Lodge',
+      location: 'Aspen, Colorado',
       rating: 4.7,
       price: 200,
-      image:
-        "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=400",
+      image: 'https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=400',
     },
   ];
 
   return (
     <div className="space-y-8">
-      {/* Hero Section */}
-      <div className="rounded-lg bg-gradient-to-r from-primary to-primary/80 p-8 text-primary-foreground">
-        <h1 className="mb-4 text-4xl font-bold">Find Your Perfect Stay</h1>
-        <p className="mb-6 text-lg opacity-90">
-          Discover amazing hotels and resorts for your next adventure
-        </p>
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-600 via-primary to-indigo-400 dark:from-primary dark:via-indigo-700 dark:to-indigo-800 p-10 text-white shadow-2xl">
+        <div className="relative z-10">
+          <h1 className="mb-3 text-4xl font-bold tracking-tight">Find Your Perfect Stay</h1>
+          <p className="mb-8 text-lg text-white/90">Discover amazing hotels and resorts for your next adventure.</p>
 
-        {/* Search Bar */}
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Search destinations, hotels..."
-              className="pl-10"
-            />
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/60" />
+              <Input
+                type="text"
+                placeholder="Search destinations, hotels..."
+                className="pl-12 bg-white/10 border-white/20 text-white placeholder:text-white/60 focus-visible:ring-white/30"
+              />
+            </div>
+            <Button size="lg" className="bg-white text-primary font-semibold hover:bg-white/90 transition">
+              Search
+            </Button>
           </div>
-          <Button size="lg" variant="secondary">
-            Search
-          </Button>
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid gap-4 md:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Active Bookings
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Active Bookings</CardTitle>
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">3</div>
-            <p className="text-xs text-muted-foreground">
-              Next check-in: Dec 15
-            </p>
+            <p className="text-xs text-muted-foreground">Next check-in: Dec 15</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Favorite Hotels
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Favorite Hotels</CardTitle>
             <Star className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -95,9 +77,7 @@ export function UserHome() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">
-              Visited Places
-            </CardTitle>
+            <CardTitle className="text-sm font-medium">Visited Places</CardTitle>
             <MapPin className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -107,14 +87,11 @@ export function UserHome() {
         </Card>
       </div>
 
-      {/* Featured Hotels */}
       <div>
         <div className="mb-4 flex items-center justify-between">
           <div>
             <h2 className="text-2xl font-bold">Featured Hotels</h2>
-            <p className="text-muted-foreground">
-              Top-rated destinations for your next trip
-            </p>
+            <p className="text-muted-foreground">Top-rated destinations for your next trip</p>
           </div>
           <Button variant="outline">View All</Button>
         </div>
