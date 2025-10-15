@@ -29,7 +29,6 @@ export function UserSidebar() {
           shouldCollapse ? 'w-16' : 'w-64',
         )}
       >
-        {/* Toggle Button */}
         <Button
           variant="ghost"
           size="icon"
