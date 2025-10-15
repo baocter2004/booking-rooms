@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Constants\GlobalConst;
-use App\Helpers\Constant;
 use App\Http\Requests\BaseAdminRequest;
 use App\Http\Resources\BaseResource;
 use App\Services\BaseAdminCrudService;

@@ -67,11 +67,19 @@ class User extends Authenticatable
     }
 
     /**
-     * Get all reviews written by this user
+     * Get all reviews written by this user  
      */
     public function reviews(): HasMany
     {
         return $this->hasMany(Review::class);
+    }
+
+    /**
+     * Check if user has reviewed a specific booking
+     */
+    public function hasReviewedBooking(int $bookingId): bool
+    {
+        return $this->reviews()->where('booking_id', $bookingId)->exists();
     }
 
     /**

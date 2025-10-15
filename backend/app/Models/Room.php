@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Room extends Model
@@ -15,13 +16,12 @@ class Room extends Model
      */
     protected $fillable = [
         'hotel_id',
-        'service_id',
         'room_type_id',
         'number',
-        'capacity',
         'price',
         'status',
         'image_url',
+        'description',
     ];
 
     /**
@@ -32,7 +32,6 @@ class Room extends Model
     protected function casts(): array
     {
         return [
-            'capacity' => 'integer',
             'price' => 'decimal:2',
             'status' => 'integer',
         ];
@@ -49,19 +48,21 @@ class Room extends Model
     }
 
     /**
-     * Get the service associated with this room
-     */
-    public function service(): BelongsTo
-    {
-        return $this->belongsTo(Service::class);
-    }
-
-    /**
      * Get the room type of this room
      */
     public function roomType(): BelongsTo
     {
         return $this->belongsTo(RoomType::class);
+    }
+
+    /**
+     * Get all services available for this room (Many-to-Many)
+     */
+    public function services(): BelongsToMany
+    {
+        return $this->belongsToMany(Service::class, 'room_service')
+            ->withPivot('is_included', 'additional_price')
+            ->withTimestamps();
     }
 
     /**
@@ -78,13 +79,5 @@ class Room extends Model
     public function availabilities(): HasMany
     {
         return $this->hasMany(Availability::class);
-    }
-
-    /**
-     * Get all reviews for this room
-     */
-    public function reviews(): HasMany
-    {
-        return $this->hasMany(Review::class);
     }
 }

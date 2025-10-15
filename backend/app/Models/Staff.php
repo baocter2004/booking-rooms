@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Staff extends Model
@@ -59,6 +60,16 @@ class Staff extends Model
     public function userAccount(): BelongsTo
     {
         return $this->belongsTo(User::class, 'user_account_id');
+    }
+
+    /**
+     * Get all services this staff member can provide (Many-to-Many)
+     */
+    public function services(): BelongsToMany
+    {
+        return $this->belongsToMany(Service::class, 'service_staff')
+            ->withPivot('is_primary')
+            ->withTimestamps();
     }
 
     /**
