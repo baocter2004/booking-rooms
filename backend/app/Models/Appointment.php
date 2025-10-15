@@ -13,12 +13,15 @@ class Appointment extends Model
      * @var array<string>
      */
     protected $fillable = [
+        'user_id',
+        'hotel_id',
+        'service_id',
+        'staff_id',
         'start_time',
         'end_time',
+        'price',
+        'notes',
         'status',
-        'user_id',
-        'staff_id',
-        'service_id',
     ];
 
     /**
@@ -31,6 +34,7 @@ class Appointment extends Model
         return [
             'start_time' => 'datetime',
             'end_time' => 'datetime',
+            'price' => 'decimal:2',
             'status' => 'integer',
         ];
     }
@@ -43,6 +47,14 @@ class Appointment extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    /**
+     * Get the hotel where this appointment is scheduled
+     */
+    public function hotel(): BelongsTo
+    {
+        return $this->belongsTo(Hotel::class);
     }
 
     /**

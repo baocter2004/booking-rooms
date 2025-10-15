@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 
 class Hotel extends Model
 {
@@ -53,5 +54,21 @@ class Hotel extends Model
     public function bookings(): HasMany
     {
         return $this->hasMany(Booking::class);
+    }
+
+    /**
+     * Get all appointments at this hotel
+     */
+    public function appointments(): HasMany
+    {
+        return $this->hasMany(Appointment::class);
+    }
+
+    /**
+     * Get all reviews through bookings at this hotel
+     */
+    public function reviews(): HasManyThrough
+    {
+        return $this->hasManyThrough(Review::class, Booking::class);
     }
 }

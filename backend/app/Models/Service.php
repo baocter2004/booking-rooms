@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Service extends Model
@@ -55,19 +56,33 @@ class Service extends Model
     }
 
     /**
-     * Get all rooms that provide this service
+     * Get all rooms that offer this service (Many-to-Many)
      */
-    public function rooms(): HasMany
+    public function rooms(): BelongsToMany
     {
-        return $this->hasMany(Room::class);
+        return $this->belongsToMany(Room::class, 'room_service')
+            ->withPivot('is_included', 'additional_price')
+            ->withTimestamps();
     }
 
     /**
-     * Get all bookings for this service
+     * Get all bookings that include this service (Many-to-Many)
      */
-    public function bookings(): HasMany
+    public function bookings(): BelongsToMany
     {
-        return $this->hasMany(Booking::class);
+        return $this->belongsToMany(Booking::class, 'booking_services')
+            ->withPivot('quantity', 'price', 'scheduled_time', 'notes')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get all staff members who can provide this service (Many-to-Many)
+     */
+    public function staff(): BelongsToMany
+    {
+        return $this->belongsToMany(Staff::class, 'service_staff')
+            ->withPivot('is_primary')
+            ->withTimestamps();
     }
 
     /**
@@ -84,13 +99,5 @@ class Service extends Model
     public function availabilities(): HasMany
     {
         return $this->hasMany(Availability::class);
-    }
-
-    /**
-     * Get all reviews for this service
-     */
-    public function reviews(): HasMany
-    {
-        return $this->hasMany(Review::class);
     }
 }

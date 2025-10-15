@@ -1,6 +1,7 @@
 <?php
 
 use App\Constants\AppointmentConst;
+use App\Models\Hotel;
 use App\Models\Service;
 use App\Models\Staff;
 use App\Models\User;
@@ -18,10 +19,13 @@ return new class extends Migration
         Schema::create('appointments', function (Blueprint $table) {
             $table->id();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Hotel::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Service::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Staff::class)->nullable()->constrained()->nullOnDelete();
             $table->dateTime('start_time');
             $table->dateTime('end_time');
+            $table->decimal('price', 12, 2)->default(0);
+            $table->text('notes')->nullable();
             $table->unsignedInteger('status')->default(AppointmentConst::PENDING);
             $table->timestamps();
         });

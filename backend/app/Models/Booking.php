@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Booking extends Model
 {
@@ -16,12 +19,13 @@ class Booking extends Model
         'user_id',
         'hotel_id',
         'room_id',
-        'service_id',
         'checkin_date',
         'checkout_date',
-        'start_time',
-        'end_time',
+        'guests',
+        'room_price',
+        'services_price',
         'total_price',
+        'special_requests',
         'status',
     ];
 
@@ -35,8 +39,9 @@ class Booking extends Model
         return [
             'checkin_date' => 'date',
             'checkout_date' => 'date',
-            'start_time' => 'datetime',
-            'end_time' => 'datetime',
+            'guests' => 'integer',
+            'room_price' => 'decimal:2',
+            'services_price' => 'decimal:2',
             'total_price' => 'decimal:2',
             'status' => 'integer',
         ];
@@ -61,7 +66,7 @@ class Booking extends Model
     }
 
     /**
-     * Get the room that was booked (nullable)
+     * Get the room that was booked
      */
     public function room(): BelongsTo
     {
@@ -69,10 +74,20 @@ class Booking extends Model
     }
 
     /**
-     * Get the service that was booked (nullable)
+     * Get all additional services for this booking (Many-to-Many)
      */
-    public function service(): BelongsTo
+    public function services(): BelongsToMany
     {
-        return $this->belongsTo(Service::class);
+        return $this->belongsToMany(Service::class, 'booking_services')
+            ->withPivot('quantity', 'price', 'scheduled_time', 'notes')
+            ->withTimestamps();
+    }
+
+    /**
+     * Get the review for this booking
+     */
+    public function review(): HasOne
+    {
+        return $this->hasOne(Review::class);
     }
 }

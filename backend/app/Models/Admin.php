@@ -2,9 +2,10 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class Admin extends Model
+class Admin extends Authenticatable implements JWTSubject
 {
     /**
      * The attributes that are mass assignable.
@@ -40,6 +41,16 @@ class Admin extends Model
             'is_super' => 'boolean',
             'password' => 'hashed',
         ];
+    }
+
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return ['guard' => 'admin'];
     }
 
     // No direct relationships for Admin model

@@ -5,18 +5,19 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Review extends Model
+class ServiceStaff extends Model
 {
+    protected $table = 'service_staff';
+
     /**
      * The attributes that are mass assignable.
      *
      * @var array<string>
      */
     protected $fillable = [
-        'user_id',
-        'booking_id',
-        'rating',
-        'comment',
+        'service_id',
+        'staff_id',
+        'is_primary',
     ];
 
     /**
@@ -27,25 +28,26 @@ class Review extends Model
     protected function casts(): array
     {
         return [
-            'rating' => 'integer',
+            'is_primary' => 'boolean',
         ];
     }
 
     // Relationships
 
     /**
-     * Get the user who wrote this review
+     * Get the service
      */
-    public function user(): BelongsTo
+    public function service(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Service::class);
     }
 
     /**
-     * Get the booking being reviewed
+     * Get the staff member
      */
-    public function booking(): BelongsTo
+    public function staff(): BelongsTo
     {
-        return $this->belongsTo(Booking::class);
+        return $this->belongsTo(Staff::class);
     }
 }
+
