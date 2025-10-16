@@ -53,5 +53,29 @@ class Admin extends Authenticatable implements JWTSubject
         return ['guard' => 'admin'];
     }
 
-    // No direct relationships for Admin model
+    // Relationships
+
+    /**
+     * Get all posts authored by this admin
+     */
+    public function posts()
+    {
+        return $this->hasMany(Post::class, 'author_id');
+    }
+
+    /**
+     * Get all notifications for this admin
+     */
+    public function notifications()
+    {
+        return $this->hasMany(AdminNotification::class);
+    }
+
+    /**
+     * Get all comments by this admin
+     */
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'commentable');
+    }
 }

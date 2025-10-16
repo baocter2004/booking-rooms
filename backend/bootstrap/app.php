@@ -4,16 +4,19 @@ use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
-        web: __DIR__.'/../routes/web.php',
+        web: __DIR__ . '/../routes/web.php',
         using: function () {
-            require __DIR__ . '/../routes/api.php';
-            require __DIR__ . '/../routes/api-admin.php';
-            require __DIR__ . '/../routes/api-client.php';
+            Route::prefix('api')->group(function () {
+                require __DIR__ . '/../routes/api.php';
+                require __DIR__ . '/../routes/api-admin.php';
+                require __DIR__ . '/../routes/api-client.php';
+            });
         },
-        commands: __DIR__.'/../routes/console.php',
+        commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {

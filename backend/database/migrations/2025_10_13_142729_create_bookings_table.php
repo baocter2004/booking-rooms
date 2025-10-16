@@ -21,14 +21,22 @@ return new class extends Migration
             $table->foreignIdFor(Hotel::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Room::class)->constrained()->cascadeOnDelete();
             $table->date('checkin_date');
+            $table->time('checkin_time')->default('14:00:00')->comment('Check-in time');
             $table->date('checkout_date');
+            $table->time('checkout_time')->default('12:00:00')->comment('Check-out time');
             $table->integer('guests')->default(1);
             $table->decimal('room_price', 12, 2)->default(0);
             $table->decimal('services_price', 12, 2)->default(0);
             $table->decimal('total_price', 12, 2)->default(0);
             $table->text('special_requests')->nullable();
             $table->unsignedInteger('status')->default(BookingConst::PENDING);
+            $table->string('booking_code', 20)->unique()->nullable();
             $table->timestamps();
+            
+            $table->index(['user_id', 'status']);
+            $table->index(['hotel_id', 'status']);
+            $table->index(['room_id', 'checkin_date', 'checkout_date']);
+            $table->index('status');
         });
     }
 

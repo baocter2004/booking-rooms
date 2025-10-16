@@ -16,7 +16,15 @@ class Review extends Model
         'user_id',
         'booking_id',
         'rating',
+        'cleanliness_rating',
+        'service_rating',
+        'facilities_rating',
+        'location_rating',
+        'value_rating',
         'comment',
+        'images',
+        'hotel_response',
+        'hotel_response_at',
     ];
 
     /**
@@ -28,6 +36,13 @@ class Review extends Model
     {
         return [
             'rating' => 'integer',
+            'cleanliness_rating' => 'integer',
+            'service_rating' => 'integer',
+            'facilities_rating' => 'integer',
+            'location_rating' => 'integer',
+            'value_rating' => 'integer',
+            'images' => 'array',
+            'hotel_response_at' => 'datetime',
         ];
     }
 

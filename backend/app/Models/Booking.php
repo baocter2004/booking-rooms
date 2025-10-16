@@ -20,13 +20,16 @@ class Booking extends Model
         'hotel_id',
         'room_id',
         'checkin_date',
+        'checkin_time',
         'checkout_date',
+        'checkout_time',
         'guests',
         'room_price',
         'services_price',
         'total_price',
         'special_requests',
         'status',
+        'booking_code',
     ];
 
     /**

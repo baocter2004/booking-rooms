@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class Staff extends Model
+class Staff extends Authenticatable implements JWTSubject
 {
     /**
      * The attributes that are mass assignable.
@@ -15,13 +16,23 @@ class Staff extends Model
      * @var array<string>
      */
     protected $fillable = [
-        'user_account_id',
         'name',
         'phone',
         'email',
+        'password',
+        'avatar',
         'status',
         'hotel_id',
         'staff_role_id',
+    ];
+
+     /**
+     * The attributes that should be hidden for serialization.
+     *
+     * @var array<string>
+     */
+    protected $hidden = [
+        'password',
     ];
 
     /**
@@ -33,8 +44,20 @@ class Staff extends Model
     {
         return [
             'status' => 'integer',
+            'password' => 'hashed',
         ];
     }
+
+    public function getJWTIdentifier()
+    {
+        return $this->getKey();
+    }
+
+    public function getJWTCustomClaims()
+    {
+        return ['guard' => 'staff'];
+    }
+
 
     // Relationships
 
@@ -55,14 +78,6 @@ class Staff extends Model
     }
 
     /**
-     * Get the user account associated with this staff member (nullable)
-     */
-    public function userAccount(): BelongsTo
-    {
-        return $this->belongsTo(User::class, 'user_account_id');
-    }
-
-    /**
      * Get all services this staff member can provide (Many-to-Many)
      */
     public function services(): BelongsToMany
@@ -78,5 +93,21 @@ class Staff extends Model
     public function appointments(): HasMany
     {
         return $this->hasMany(Appointment::class);
+    }
+
+    /**
+     * Get all notifications for this staff
+     */
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(StaffNotification::class);
+    }
+
+    /**
+     * Get all comments by this staff
+     */
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'commentable');
     }
 }

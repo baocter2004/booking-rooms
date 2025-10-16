@@ -75,18 +75,26 @@ class User extends Authenticatable
     }
 
     /**
+     * Get all notifications for this user
+     */
+    public function notifications(): HasMany
+    {
+        return $this->hasMany(UserNotification::class);
+    }
+
+    /**
+     * Get all comments by this user
+     */
+    public function comments()
+    {
+        return $this->morphMany(Comment::class, 'commentable');
+    }
+
+    /**
      * Check if user has reviewed a specific booking
      */
     public function hasReviewedBooking(int $bookingId): bool
     {
         return $this->reviews()->where('booking_id', $bookingId)->exists();
-    }
-
-    /**
-     * Get all staff records associated with this user account
-     */
-    public function staffRecords(): HasMany
-    {
-        return $this->hasMany(Staff::class, 'user_account_id');
     }
 }

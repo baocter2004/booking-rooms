@@ -6,6 +6,7 @@ use App\Constants\BookingConst;
 use App\Constants\RoomConst;
 use App\Constants\StaffConst;
 use App\Constants\AppointmentConst;
+use App\Constants\PostConst;
 use App\Models\Admin;
 use App\Models\User;
 use App\Models\Staff;
@@ -19,9 +20,17 @@ use App\Models\Booking;
 use App\Models\Appointment;
 use App\Models\Availability;
 use App\Models\Review;
+use App\Models\PostCategory;
+use App\Models\Post;
+use App\Models\PostTag;
+use App\Models\Comment;
+use App\Models\UserNotification;
+use App\Models\StaffNotification;
+use App\Models\AdminNotification;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Faker\Factory as Faker;
 
 class DatabaseSeeder extends Seeder
@@ -193,21 +202,20 @@ class DatabaseSeeder extends Seeder
         
         $rooms = collect();
         foreach ($hotels as $hotelIndex => $hotel) {
+            $roomCounter = 101; // Start from room 101 for each hotel
             foreach ($roomTypes as $type) {
                 $roomsPerType = $faker->numberBetween(3, 8);
                 for ($i = 1; $i <= $roomsPerType; $i++) {
-                    $floor = $faker->numberBetween(1, 10);
-                    $roomNum = str_pad($i, 2, '0', STR_PAD_LEFT);
-                    
                     $rooms->push(Room::create([
                         'hotel_id' => $hotel->id,
                         'room_type_id' => $type->id,
-                        'number' => "{$floor}{$roomNum}",
+                        'number' => $roomCounter,
                         'price' => $type->base_price + $faker->numberBetween(-100000, 500000),
                         'status' => RoomConst::AVAILABLE,
                         'image_url' => 'https://images.unsplash.com/photo-1611892440504-42a792e24d32',
                         'description' => $faker->sentence(10),
                     ]));
+                    $roomCounter++; // Increment to ensure unique room numbers
                 }
             }
         }
@@ -291,11 +299,11 @@ class DatabaseSeeder extends Seeder
                 for ($i = 1; $i <= $staffCount; $i++) {
                     $staffs->push(Staff::create([
                         'hotel_id' => $hotel->id,
-                        'user_account_id' => null,
                         'name' => $faker->name(),
                         'staff_role_id' => $role->id,
                         'phone' => $faker->phoneNumber(),
                         'email' => $faker->unique()->safeEmail(),
+                        'password' => Hash::make('staff123'),
                         'status' => StaffConst::ACTIVE,
                     ]));
                 }
@@ -359,13 +367,16 @@ class DatabaseSeeder extends Seeder
                     'hotel_id' => $room->hotel_id,
                     'room_id' => $room->id,
                     'checkin_date' => $checkinDate,
+                    'checkin_time' => $faker->randomElement(['14:00:00', '15:00:00', '16:00:00']),
                     'checkout_date' => $checkoutDate,
+                    'checkout_time' => $faker->randomElement(['11:00:00', '12:00:00', '13:00:00']),
                     'guests' => $guests,
                     'room_price' => $roomPrice,
                     'services_price' => 0,
                     'total_price' => $roomPrice,
                     'special_requests' => $faker->boolean(30) ? $faker->sentence(8) : null,
                     'status' => $status,
+                    'booking_code' => 'BK' . strtoupper($faker->bothify('???###')),
                 ]);
                 
                 $bookings->push($booking);
@@ -516,6 +527,344 @@ class DatabaseSeeder extends Seeder
             }
         }
 
+        // ============================================
+        // 17. POST CATEGORIES
+        // ============================================
+        $this->command->info('📂 Seeding Post Categories...');
+        
+        $postCategories = collect([
+            PostCategory::create([
+                'name' => 'Tin tức',
+                'slug' => 'tin-tuc',
+                'description' => 'Tin tức mới nhất về khách sạn',
+                'order' => 1,
+                'is_active' => true,
+            ]),
+            PostCategory::create([
+                'name' => 'Khuyến mãi',
+                'slug' => 'khuyen-mai',
+                'description' => 'Các chương trình khuyến mãi đặc biệt',
+                'order' => 2,
+                'is_active' => true,
+            ]),
+            PostCategory::create([
+                'name' => 'Du lịch',
+                'slug' => 'du-lich',
+                'description' => 'Chia sẻ về địa điểm du lịch',
+                'order' => 3,
+                'is_active' => true,
+            ]),
+            PostCategory::create([
+                'name' => 'Sự kiện',
+                'slug' => 'su-kien',
+                'description' => 'Sự kiện tại khách sạn',
+                'order' => 4,
+                'is_active' => true,
+            ]),
+            PostCategory::create([
+                'name' => 'Ẩm thực',
+                'slug' => 'am-thuc',
+                'description' => 'Khám phá ẩm thực',
+                'order' => 5,
+                'is_active' => true,
+            ]),
+        ]);
+
+        // Subcategories
+        PostCategory::create([
+            'parent_id' => $postCategories[0]->id,
+            'name' => 'Tin khách sạn',
+            'slug' => 'tin-khach-san',
+            'description' => 'Tin tức về khách sạn',
+            'order' => 1,
+            'is_active' => true,
+        ]);
+
+        PostCategory::create([
+            'parent_id' => $postCategories[1]->id,
+            'name' => 'Giảm giá phòng',
+            'slug' => 'giam-gia-phong',
+            'description' => 'Khuyến mãi giảm giá phòng',
+            'order' => 1,
+            'is_active' => true,
+        ]);
+
+        // ============================================
+        // 18. POST TAGS
+        // ============================================
+        $this->command->info('🏷️  Seeding Post Tags...');
+        
+        $postTags = collect([
+            PostTag::create(['name' => 'Khuyến mãi', 'slug' => 'khuyen-mai']),
+            PostTag::create(['name' => 'Du lịch hè', 'slug' => 'du-lich-he']),
+            PostTag::create(['name' => 'Nghỉ dưỡng', 'slug' => 'nghi-duong']),
+            PostTag::create(['name' => 'Gia đình', 'slug' => 'gia-dinh']),
+            PostTag::create(['name' => 'Spa', 'slug' => 'spa']),
+            PostTag::create(['name' => 'Ẩm thực', 'slug' => 'am-thuc']),
+            PostTag::create(['name' => 'Biển', 'slug' => 'bien']),
+            PostTag::create(['name' => 'Núi', 'slug' => 'nui']),
+            PostTag::create(['name' => 'Thành phố', 'slug' => 'thanh-pho']),
+            PostTag::create(['name' => 'Tiết kiệm', 'slug' => 'tiet-kiem']),
+        ]);
+
+        // ============================================
+        // 19. POSTS
+        // ============================================
+        $this->command->info('📝 Seeding Posts...');
+        
+        $adminAuthor = Admin::first();
+        $posts = collect();
+        
+        $postTitles = [
+            'Khám phá vẻ đẹp của biển cả cùng Grand Ocean Hotel',
+            'Ưu đãi đặc biệt mùa hè - Giảm giá lên đến 30%',
+            'Top 10 địa điểm du lịch không thể bỏ qua',
+            'Trải nghiệm ẩm thực đỉnh cao tại nhà hàng 5 sao',
+            'Chương trình Wellness Spa - Thư giãn hoàn hảo',
+            'Tổ chức sự kiện tại Mountain View Resort',
+            'Hướng dẫn đặt phòng khách sạn tiết kiệm',
+            'Những điều cần biết khi đi du lịch Sapa',
+            'Khám phá văn hóa ẩm thực miền Trung',
+            'Kỳ nghỉ gia đình hoàn hảo tại City Center Plaza',
+            'Bí quyết chọn phòng khách sạn phù hợp',
+            'Chương trình khuyến mãi cuối năm',
+            'Trải nghiệm dịch vụ spa cao cấp',
+            'Du lịch bụi - Kinh nghiệm và lời khuyên',
+            'Ẩm thực đường phố Sài Gòn',
+        ];
+
+        foreach ($postTitles as $index => $title) {
+            $category = $postCategories->random();
+            $isPublished = $faker->boolean(80);
+            
+            $post = Post::create([
+                'author_id' => $adminAuthor->id,
+                'post_category_id' => $category->id,
+                'title' => $title,
+                'slug' => Str::slug($title),
+                'excerpt' => $faker->paragraph(2),
+                'content' => implode("\n\n", $faker->paragraphs(8)),
+                'featured_image' => 'https://images.unsplash.com/photo-' . $faker->numberBetween(1500000000000, 1700000000000),
+                'status' => $isPublished ? PostConst::PUBLISHED : $faker->randomElement([PostConst::DRAFT, PostConst::PUBLISHED]),
+                'is_featured' => $faker->boolean(20),
+                'allow_comments' => true,
+                'views' => $faker->numberBetween(50, 5000),
+                'published_at' => $isPublished ? now()->subDays($faker->numberBetween(1, 60)) : null,
+            ]);
+
+            // Attach tags (2-4 tags per post)
+            $numTags = $faker->numberBetween(2, 4);
+            $post->tags()->attach($postTags->random($numTags)->pluck('id'));
+            
+            $posts->push($post);
+        }
+
+        // ============================================
+        // 20. COMMENTS
+        // ============================================
+        $this->command->info('💬 Seeding Comments...');
+        
+        $publishedPosts = $posts->where('status', PostConst::PUBLISHED);
+        
+        foreach ($publishedPosts as $post) {
+            if ($faker->boolean(70)) {
+                $numComments = $faker->numberBetween(1, 5);
+                
+                for ($i = 0; $i < $numComments; $i++) {
+                    $commenter = $users->random();
+                    
+                    $comment = Comment::create([
+                        'post_id' => $post->id,
+                        'parent_id' => null,
+                        'commentable_type' => 'App\\Models\\User',
+                        'commentable_id' => $commenter->id,
+                        'content' => $faker->paragraph(2),
+                        'is_approved' => $faker->boolean(90),
+                    ]);
+
+                    // Add replies (30% chance)
+                    if ($faker->boolean(30)) {
+                        $numReplies = $faker->numberBetween(1, 2);
+                        
+                        for ($j = 0; $j < $numReplies; $j++) {
+                            Comment::create([
+                                'post_id' => $post->id,
+                                'parent_id' => $comment->id,
+                                'commentable_type' => $faker->randomElement(['App\\Models\\User', 'App\\Models\\Admin']),
+                                'commentable_id' => $faker->randomElement([$users->random()->id, $adminAuthor->id]),
+                                'content' => $faker->paragraph(1),
+                                'is_approved' => true,
+                            ]);
+                        }
+                    }
+                }
+            }
+        }
+
+        // ============================================
+        // 21. USER NOTIFICATIONS
+        // ============================================
+        $this->command->info('🔔 Seeding User Notifications...');
+        
+        foreach ($users->take(15) as $user) {
+            // Booking confirmed notification
+            if ($user->bookings()->count() > 0) {
+                $booking = $user->bookings()->first();
+                UserNotification::create([
+                    'user_id' => $user->id,
+                    'type' => 'booking_confirmed',
+                    'title' => 'Đặt phòng thành công',
+                    'message' => 'Đặt phòng #' . $booking->booking_code . ' của bạn đã được xác nhận.',
+                    'data' => ['booking_id' => $booking->id, 'booking_code' => $booking->booking_code],
+                    'action_url' => '/bookings/' . $booking->id,
+                    'read_at' => $faker->boolean(50) ? now()->subDays($faker->numberBetween(1, 5)) : null,
+                ]);
+            }
+
+            // Promotion notification
+            if ($faker->boolean(70)) {
+                UserNotification::create([
+                    'user_id' => $user->id,
+                    'type' => 'promotion',
+                    'title' => 'Ưu đãi đặc biệt dành cho bạn',
+                    'message' => 'Giảm giá 20% cho lần đặt phòng tiếp theo. Mã: SPECIAL20',
+                    'data' => ['discount_code' => 'SPECIAL20', 'discount' => 20],
+                    'action_url' => '/promotions',
+                    'read_at' => $faker->boolean(30) ? now()->subDays($faker->numberBetween(1, 3)) : null,
+                ]);
+            }
+
+            // Payment reminder
+            if ($faker->boolean(40)) {
+                UserNotification::create([
+                    'user_id' => $user->id,
+                    'type' => 'payment_reminder',
+                    'title' => 'Nhắc nhở thanh toán',
+                    'message' => 'Bạn có đơn đặt phòng cần thanh toán trong vòng 24h.',
+                    'data' => ['deadline' => now()->addHours(24)->toIso8601String()],
+                    'action_url' => '/bookings/pending',
+                    'read_at' => null,
+                ]);
+            }
+        }
+
+        // ============================================
+        // 22. STAFF NOTIFICATIONS
+        // ============================================
+        $this->command->info('🔔 Seeding Staff Notifications...');
+        
+        foreach ($staffs->take(10) as $staff) {
+            // New appointment notification (urgent)
+            StaffNotification::create([
+                'staff_id' => $staff->id,
+                'type' => 'new_appointment',
+                'title' => 'Lịch hẹn mới - Khẩn cấp',
+                'message' => 'Bạn có lịch hẹn mới vào ngày ' . now()->addDays(1)->format('d/m/Y H:i'),
+                'data' => ['appointment_date' => now()->addDays(1)->format('Y-m-d'), 'time' => '10:00'],
+                'action_url' => '/staff/appointments',
+                'priority' => StaffNotification::PRIORITY_HIGH,
+                'read_at' => null,
+            ]);
+
+            // Task assignment (normal)
+            if ($faker->boolean(60)) {
+                StaffNotification::create([
+                    'staff_id' => $staff->id,
+                    'type' => 'task_assigned',
+                    'title' => 'Nhiệm vụ mới',
+                    'message' => 'Bạn được phân công phục vụ phòng ' . $faker->numberBetween(101, 999),
+                    'data' => ['room_number' => $faker->numberBetween(101, 999), 'task_type' => 'cleaning'],
+                    'action_url' => '/staff/tasks',
+                    'priority' => StaffNotification::PRIORITY_NORMAL,
+                    'read_at' => $faker->boolean(40) ? now()->subHours($faker->numberBetween(1, 24)) : null,
+                ]);
+            }
+
+            // Schedule change
+            if ($faker->boolean(30)) {
+                StaffNotification::create([
+                    'staff_id' => $staff->id,
+                    'type' => 'schedule_change',
+                    'title' => 'Thay đổi lịch làm việc',
+                    'message' => 'Lịch làm việc của bạn đã được cập nhật cho tuần tới.',
+                    'data' => ['week' => now()->addWeek()->weekOfYear],
+                    'action_url' => '/staff/schedule',
+                    'priority' => StaffNotification::PRIORITY_NORMAL,
+                    'read_at' => null,
+                ]);
+            }
+        }
+
+        // ============================================
+        // 23. ADMIN NOTIFICATIONS
+        // ============================================
+        $this->command->info('🔔 Seeding Admin Notifications...');
+        
+        // New bookings (system notification - high priority)
+        AdminNotification::create([
+            'admin_id' => $adminAuthor->id,
+            'type' => 'new_booking',
+            'title' => 'Đặt phòng mới chờ xác nhận',
+            'message' => 'Có ' . Booking::where('status', BookingConst::PENDING)->count() . ' đặt phòng mới chờ xác nhận.',
+            'data' => ['pending_count' => Booking::where('status', BookingConst::PENDING)->count()],
+            'action_url' => '/admin/bookings',
+            'priority' => AdminNotification::PRIORITY_HIGH,
+            'is_system' => true,
+            'read_at' => null,
+        ]);
+
+        // New reviews (normal priority)
+        AdminNotification::create([
+            'admin_id' => $adminAuthor->id,
+            'type' => 'new_review',
+            'title' => 'Đánh giá mới từ khách hàng',
+            'message' => 'Có ' . Review::count() . ' đánh giá mới từ khách hàng.',
+            'data' => ['review_count' => Review::count(), 'avg_rating' => 4.5],
+            'action_url' => '/admin/reviews',
+            'priority' => AdminNotification::PRIORITY_NORMAL,
+            'is_system' => false,
+            'read_at' => null,
+        ]);
+
+        // Low inventory (urgent)
+        AdminNotification::create([
+            'admin_id' => $adminAuthor->id,
+            'type' => 'system_alert',
+            'title' => 'Cảnh báo: Phòng trống sắp hết',
+            'message' => 'Chỉ còn ' . Room::where('status', RoomConst::AVAILABLE)->count() . ' phòng trống.',
+            'data' => ['available_rooms' => Room::where('status', RoomConst::AVAILABLE)->count()],
+            'action_url' => '/admin/rooms',
+            'priority' => AdminNotification::PRIORITY_URGENT,
+            'is_system' => true,
+            'read_at' => null,
+        ]);
+
+        // Revenue report (normal)
+        AdminNotification::create([
+            'admin_id' => $adminAuthor->id,
+            'type' => 'report',
+            'title' => 'Báo cáo doanh thu tháng',
+            'message' => 'Báo cáo doanh thu tháng ' . now()->format('m/Y') . ' đã sẵn sàng.',
+            'data' => ['month' => now()->format('m'), 'year' => now()->format('Y')],
+            'action_url' => '/admin/reports/revenue',
+            'priority' => AdminNotification::PRIORITY_NORMAL,
+            'is_system' => false,
+            'read_at' => $faker->boolean(50) ? now()->subDays(1) : null,
+        ]);
+
+        // New staff registered
+        AdminNotification::create([
+            'admin_id' => $adminAuthor->id,
+            'type' => 'staff_management',
+            'title' => 'Nhân viên mới cần phê duyệt',
+            'message' => 'Có yêu cầu đăng ký từ nhân viên mới.',
+            'data' => ['staff_name' => 'Nguyễn Văn A'],
+            'action_url' => '/admin/staff/pending',
+            'priority' => AdminNotification::PRIORITY_NORMAL,
+            'is_system' => false,
+            'read_at' => null,
+        ]);
+
         $this->command->info('');
         $this->command->info('✅ Seeding completed successfully!');
         $this->command->info('');
@@ -533,9 +882,17 @@ class DatabaseSeeder extends Seeder
         $this->command->info("   - Appointments: " . Appointment::count());
         $this->command->info("   - Reviews: " . Review::count());
         $this->command->info("   - Availabilities: " . Availability::count());
+        $this->command->info("   - Post Categories: " . PostCategory::count());
+        $this->command->info("   - Posts: " . Post::count());
+        $this->command->info("   - Post Tags: " . PostTag::count());
+        $this->command->info("   - Comments: " . Comment::count());
+        $this->command->info("   - User Notifications: " . UserNotification::count());
+        $this->command->info("   - Staff Notifications: " . StaffNotification::count());
+        $this->command->info("   - Admin Notifications: " . AdminNotification::count());
         $this->command->info('');
         $this->command->info('🔐 Test Credentials:');
         $this->command->info('   Admin: admin@example.com / admin123');
         $this->command->info('   User: user@example.com / password');
+        $this->command->info('   Staff: (any staff email) / staff123');
     }
 }
