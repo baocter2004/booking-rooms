@@ -7,9 +7,11 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use App\Traits\HasRoleGuard;
 
 class Staff extends Authenticatable implements JWTSubject
 {
+    use HasRoleGuard;
     /**
      * The attributes that are mass assignable.
      *

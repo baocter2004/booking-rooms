@@ -12,8 +12,11 @@ class UserResource extends BaseResource
         return [
             'id' => $this->id,
             'email' => $this->email,
-            'username' => $this->username,
+            'name' => $this->name,
             'avatar' => $this->avatar ? url('storage/' . $this->avatar) : null,
+            'phone' => $this->phone,
+            'created_at' => $this->created_at,
+            'updated_at' => $this->updated_at
         ];
     }
 

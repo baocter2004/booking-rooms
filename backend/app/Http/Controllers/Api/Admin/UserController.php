@@ -39,9 +39,4 @@ class UserController extends BaseCrudController
     {
         return new UserResource($data, true);
     }
-
-    public function getProfile(): UserResource
-    {
-        return $this->getJsonResource(auth()->guard('user')->user());
-    }
 }
