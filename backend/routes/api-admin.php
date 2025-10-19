@@ -9,5 +9,16 @@ Route::prefix('admin')
     ->middleware(['auth.role', 'role:admin'])
     ->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
-        Route::resource('users', UserController::class)->names('users');
+        Route::prefix('users')
+            ->name('users.')
+            ->group(function () {
+                Route::get('/', [UserController::class, 'index'])->name('index');
+                Route::get('/{id}', [UserController::class, 'show'])->name('show');
+
+                Route::post('/', [UserController::class, 'create'])->name('.create');
+                Route::put('/{id}', [UserController::class, 'edit'])->name('edit');
+                Route::patch('/{id}', [UserController::class, 'editList']);
+
+                Route::delete('/{id}', [UserController::class, 'destroy'])->name('destroy');
+            });
     });
