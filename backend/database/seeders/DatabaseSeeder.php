@@ -32,6 +32,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Faker\Factory as Faker;
+use NotificationConst;
 
 class DatabaseSeeder extends Seeder
 {
@@ -762,7 +763,7 @@ class DatabaseSeeder extends Seeder
                 'message' => 'Bạn có lịch hẹn mới vào ngày ' . now()->addDays(1)->format('d/m/Y H:i'),
                 'data' => ['appointment_date' => now()->addDays(1)->format('Y-m-d'), 'time' => '10:00'],
                 'action_url' => '/staff/appointments',
-                'priority' => StaffNotification::PRIORITY_HIGH,
+                'priority' => NotificationConst::PRIORITY_HIGH,
                 'read_at' => null,
             ]);
 
@@ -775,7 +776,7 @@ class DatabaseSeeder extends Seeder
                     'message' => 'Bạn được phân công phục vụ phòng ' . $faker->numberBetween(101, 999),
                     'data' => ['room_number' => $faker->numberBetween(101, 999), 'task_type' => 'cleaning'],
                     'action_url' => '/staff/tasks',
-                    'priority' => StaffNotification::PRIORITY_NORMAL,
+                    'priority' => NotificationConst::PRIORITY_NORMAL,
                     'read_at' => $faker->boolean(40) ? now()->subHours($faker->numberBetween(1, 24)) : null,
                 ]);
             }
@@ -789,7 +790,7 @@ class DatabaseSeeder extends Seeder
                     'message' => 'Lịch làm việc của bạn đã được cập nhật cho tuần tới.',
                     'data' => ['week' => now()->addWeek()->weekOfYear],
                     'action_url' => '/staff/schedule',
-                    'priority' => StaffNotification::PRIORITY_NORMAL,
+                    'priority' => NotificationConst::PRIORITY_NORMAL,
                     'read_at' => null,
                 ]);
             }
@@ -808,7 +809,7 @@ class DatabaseSeeder extends Seeder
             'message' => 'Có ' . Booking::where('status', BookingConst::PENDING)->count() . ' đặt phòng mới chờ xác nhận.',
             'data' => ['pending_count' => Booking::where('status', BookingConst::PENDING)->count()],
             'action_url' => '/admin/bookings',
-            'priority' => AdminNotification::PRIORITY_HIGH,
+            'priority' => NotificationConst::PRIORITY_HIGH,
             'is_system' => true,
             'read_at' => null,
         ]);
@@ -821,7 +822,7 @@ class DatabaseSeeder extends Seeder
             'message' => 'Có ' . Review::count() . ' đánh giá mới từ khách hàng.',
             'data' => ['review_count' => Review::count(), 'avg_rating' => 4.5],
             'action_url' => '/admin/reviews',
-            'priority' => AdminNotification::PRIORITY_NORMAL,
+            'priority' => NotificationConst::PRIORITY_NORMAL,
             'is_system' => false,
             'read_at' => null,
         ]);
@@ -834,7 +835,7 @@ class DatabaseSeeder extends Seeder
             'message' => 'Chỉ còn ' . Room::where('status', RoomConst::AVAILABLE)->count() . ' phòng trống.',
             'data' => ['available_rooms' => Room::where('status', RoomConst::AVAILABLE)->count()],
             'action_url' => '/admin/rooms',
-            'priority' => AdminNotification::PRIORITY_URGENT,
+            'priority' => NotificationConst::PRIORITY_URGENT,
             'is_system' => true,
             'read_at' => null,
         ]);
@@ -847,7 +848,7 @@ class DatabaseSeeder extends Seeder
             'message' => 'Báo cáo doanh thu tháng ' . now()->format('m/Y') . ' đã sẵn sàng.',
             'data' => ['month' => now()->format('m'), 'year' => now()->format('Y')],
             'action_url' => '/admin/reports/revenue',
-            'priority' => AdminNotification::PRIORITY_NORMAL,
+            'priority' => NotificationConst::PRIORITY_NORMAL,
             'is_system' => false,
             'read_at' => $faker->boolean(50) ? now()->subDays(1) : null,
         ]);
@@ -860,7 +861,7 @@ class DatabaseSeeder extends Seeder
             'message' => 'Có yêu cầu đăng ký từ nhân viên mới.',
             'data' => ['staff_name' => 'Nguyễn Văn A'],
             'action_url' => '/admin/staff/pending',
-            'priority' => AdminNotification::PRIORITY_NORMAL,
+            'priority' => NotificationConst::PRIORITY_NORMAL,
             'is_system' => false,
             'read_at' => null,
         ]);
