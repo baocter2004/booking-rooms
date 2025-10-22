@@ -24,6 +24,10 @@ return new class extends Migration
             $table->string('image_url', 255)->nullable();
             $table->text('description')->nullable();
             $table->timestamps();
+            
+            $table->unique(['hotel_id', 'number']);
+            $table->index(['hotel_id', 'status']);
+            $table->index('room_type_id');
         });
     }
 

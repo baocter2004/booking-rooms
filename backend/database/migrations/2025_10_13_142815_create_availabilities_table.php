@@ -15,11 +15,14 @@ return new class extends Migration
     {
         Schema::create('availabilities', function (Blueprint $table) {
             $table->id();
-            $table->foreignIdFor(Room::class)->nullable()->constrained()->nullOnDelete();
-            $table->foreignIdFor(Service::class)->nullable()->constrained()->nullOnDelete();
+            $table->foreignIdFor(Room::class)->nullable()->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Service::class)->nullable()->constrained()->cascadeOnDelete();
             $table->date('date');
             $table->boolean('is_available')->default(1);
             $table->timestamps();
+            
+            $table->index(['room_id', 'date', 'is_available']);
+            $table->index(['service_id', 'date', 'is_available']);
         });
     }
 

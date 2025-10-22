@@ -38,4 +38,13 @@ class ApiController extends Controller
     {
         return Auth::guard($authName);
     }
+
+    protected function respondWithToken(string $token): array
+    {
+        return [
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_at' => now()->addMinutes(config('jwt.ttl')),
+        ];
+    }
 }

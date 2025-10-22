@@ -28,6 +28,11 @@ return new class extends Migration
             $table->text('notes')->nullable();
             $table->unsignedInteger('status')->default(AppointmentConst::PENDING);
             $table->timestamps();
+            
+            $table->index(['user_id', 'status']);
+            $table->index(['staff_id', 'start_time']);
+            $table->index(['service_id', 'start_time']);
+            $table->index('status');
         });
     }
 
