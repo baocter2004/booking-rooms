@@ -46,6 +46,26 @@ return new class extends Migration
         Schema::table('service_types', function (Blueprint $table) {
             $table->softDeletes();
         });
+
+        Schema::table('room_types', function (Blueprint $table) {
+            $table->softDeletes();
+        });
+
+        Schema::table('staff_roles', function (Blueprint $table) {
+            $table->softDeletes();
+        });
+
+        Schema::table('translations', function (Blueprint $table) {
+            $table->softDeletes();
+        });
+
+        Schema::table('post_categories', function (Blueprint $table) {
+            $table->softDeletes();
+        });
+
+        Schema::table('post_tags', function (Blueprint $table) {
+            $table->softDeletes();
+        });
     }
 
     /**
@@ -86,6 +106,26 @@ return new class extends Migration
         });
 
         Schema::table('service_types', function (Blueprint $table) {
+            $table->dropSoftDeletes();
+        });
+
+        Schema::table('room_types', function (Blueprint $table) {
+            $table->dropSoftDeletes();
+        });
+
+        Schema::table('staff_roles', function (Blueprint $table) {
+            $table->dropSoftDeletes();
+        });
+
+        Schema::table('translations', function (Blueprint $table) {
+            $table->dropSoftDeletes();
+        });
+
+        Schema::table('post_categories', function (Blueprint $table) {
+            $table->dropSoftDeletes();
+        });
+
+        Schema::table('post_tags', function (Blueprint $table) {
             $table->dropSoftDeletes();
         });
     }

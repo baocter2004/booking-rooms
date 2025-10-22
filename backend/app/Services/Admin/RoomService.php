@@ -2,16 +2,16 @@
 
 namespace App\Services\Admin;
 
-use App\Repositories\UserRepository;
+use App\Repositories\RoomRepository;
 use App\Services\BaseAdminCrudService;
 use Illuminate\Support\Arr;
 
-class UserService extends BaseAdminCrudService
+class RoomService extends BaseAdminCrudService
 {
-    protected function getRepository(): UserRepository
+    protected function getRepository(): RoomRepository
     {
         if (empty($this->repository)) {
-            $this->repository = app()->make(UserRepository::class);
+            $this->repository = app()->make(RoomRepository::class);
         }
 
         return $this->repository;
@@ -25,32 +25,12 @@ class UserService extends BaseAdminCrudService
         $whereLikes = Arr::get($params, 'likes', []);
         $sort = Arr::get($params, 'sort', 'created_at:desc');
         $relates = Arr::get($params, 'relates', [
+            'hotel',
+            'roomType',
+            'services',
             'bookings',
-            'appointments',
-            'reviews',
-            'notifications',
-            'comments'
+            'availabilities'
         ]);
-
-        if (!empty($params['from_date'])) {
-            $whereEquals[] = ['created_at', '>=', $params['from_date']];
-        }
-
-        if (!empty($params['to_date'])) {
-            $whereEquals[] = ['created_at', '<=', $params['to_date']];
-        }
-
-        if (!empty($params['name'])) {
-            $whereLikes['name'] = $params['name'];
-        }
-
-        if (!empty($params['phone'])) {
-            $whereLikes['phone'] = $params['phone'];
-        }
-
-        if (!empty($params['email'])) {
-            $whereLikes['email'] = $params['email'];
-        }
 
         return [
             'wheres' => $wheres,

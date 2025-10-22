@@ -1,5 +1,7 @@
 <?php
 
+namespace App\Constants;
+
 class NotificationConst
 {
     const PRIORITY_LOW = 1;
