@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use App\Traits\HasRoleGuard;
 
 class Admin extends Authenticatable implements JWTSubject
 {
+    use HasRoleGuard;
     /**
      * The attributes that are mass assignable.
      *

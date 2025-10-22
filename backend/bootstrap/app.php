@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Middleware\AuthenticateWithRole;
+use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -13,14 +15,18 @@ return Application::configure(basePath: dirname(__DIR__))
             Route::prefix('api')->group(function () {
                 require __DIR__ . '/../routes/api.php';
                 require __DIR__ . '/../routes/api-admin.php';
-                require __DIR__ . '/../routes/api-client.php';
+                require __DIR__ . '/../routes/api-user.php';
+                require __DIR__ . '/../routes/api-staff.php';
             });
         },
         commands: __DIR__ . '/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        $middleware->alias([
+            'role' => RoleMiddleware::class,
+            'auth.role' => AuthenticateWithRole::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         $exceptions->shouldRenderJsonWhen(function (Request $request, Throwable $throwable) {

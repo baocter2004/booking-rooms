@@ -2,7 +2,7 @@
 
 namespace App\Http\Resources\Admin;
 
-use BaseResourceCollection;
+use App\Http\Resources\BaseResourceCollection;
 
 class UserCollection extends BaseResourceCollection
 {
