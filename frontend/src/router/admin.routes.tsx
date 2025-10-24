@@ -2,6 +2,7 @@ import { Route } from 'react-router-dom';
 import { ProtectedRoute } from '@/components/auth/ProtectedRoute';
 import { AdminLogin } from '@/pages/admin/auth/Login';
 import { AdminDashboard } from '@/pages/admin/Dashboard';
+import { HotelList, HotelDetail, HotelCreate, HotelEdit } from '@/pages/admin/hotels';
 import { AdminLayout } from '@/layouts/admin/AdminLayout';
 
 export const adminRoutes = (
@@ -32,7 +33,37 @@ export const adminRoutes = (
       element={
         <ProtectedRoute allowedRoles={['admin']} currentRole="admin">
           <AdminLayout title="Hotels Management">
-            <div>Hotels Page (Coming Soon)</div>
+            <HotelList />
+          </AdminLayout>
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/admin/hotels/create"
+      element={
+        <ProtectedRoute allowedRoles={['admin']} currentRole="admin">
+          <AdminLayout title="Create Hotel">
+            <HotelCreate />
+          </AdminLayout>
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/admin/hotels/:id"
+      element={
+        <ProtectedRoute allowedRoles={['admin']} currentRole="admin">
+          <AdminLayout title="Hotel Details">
+            <HotelDetail />
+          </AdminLayout>
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/admin/hotels/:id/edit"
+      element={
+        <ProtectedRoute allowedRoles={['admin']} currentRole="admin">
+          <AdminLayout title="Edit Hotel">
+            <HotelEdit />
           </AdminLayout>
         </ProtectedRoute>
       }

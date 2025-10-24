@@ -23,23 +23,52 @@ class HotelService extends BaseAdminCrudService
         $whereEquals = Arr::get($params, 'where_equals', []);
         $whereIns = Arr::get($params, 'where_ins', []);
         $whereLikes = Arr::get($params, 'likes', []);
+        $orWheres = Arr::get($params, 'or_wheres', []);
         $sort = Arr::get($params, 'sort', 'created_at:desc');
-        $relates = Arr::get($params, 'relates', [
-            'services',
-            'rooms',
-            'staff',
-            'bookings',
-            'appointments',
-            'reviews'
-        ]);
+        $relates = Arr::get($params, 'relates', []);
+        $relatesCount = Arr::get($params, 'relates_count', ['rooms', 'staff']);
+
+        if (!empty($params['from_date'])) {
+            $whereEquals[] = ['created_at', '>=', $params['from_date']];
+        }
+
+        if (!empty($params['to_date'])) {
+            $whereEquals[] = ['created_at', '<=', $params['to_date']];
+        }
+
+        if (!empty($params['search'])) {
+            $searchTerm = $params['search'];
+            $orWheres[] = ['name', 'LIKE', '%' . $searchTerm . '%'];
+            $orWheres[] = ['address', 'LIKE', '%' . $searchTerm . '%'];
+            $orWheres[] = ['email', 'LIKE', '%' . $searchTerm . '%'];
+            $orWheres[] = ['phone', 'LIKE', '%' . $searchTerm . '%'];
+        }
+
+        if (!empty($params['name'])) {
+            $whereLikes['name'] = $params['name'];
+        }
+
+        if (!empty($params['address'])) {
+            $whereLikes['address'] = $params['address'];
+        }
+
+        if (!empty($params['email'])) {
+            $whereLikes['email'] = $params['email'];
+        }
+
+        if (!empty($params['phone'])) {
+            $whereLikes['phone'] = $params['phone'];
+        }
 
         return [
             'wheres' => $wheres,
             'likes' => $whereLikes,
+            'or_wheres' => $orWheres,
             'where_equals' => $whereEquals,
             'where_ins' => $whereIns,
             'sort' => $sort,
             'relates' => $relates,
+            'relates_count' => $relatesCount,
         ];
     }
 }

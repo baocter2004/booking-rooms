@@ -8,6 +8,8 @@ export interface BaseUser {
   email: string;
   name: string;
   role: string;
+  phone?: string | null;
+  avatar?: string | null;
 }
 
 export interface LoginResponse {
@@ -15,7 +17,9 @@ export interface LoginResponse {
   message: string;
   data: {
     user: BaseUser;
-    token: string;
+    access_token: string;
+    token_type: string;
+    expires_at: string;
   };
 }
 
@@ -48,17 +52,22 @@ export const useBaseAuth = (config: BaseAuthConfig): UseBaseAuthReturn => {
   const login = async (data: any): Promise<void> => {
     try {
       setIsLoading(true);
-      
+
       const response = await api.post<LoginResponse>(config.loginEndpoint, data);
-      
+
       if (response.data.success) {
-        const { user: authUser, token } = response.data.data;
-        
+        const responseData = response.data.data;
+        const token = responseData.access_token;
+        const authUser = responseData.user;
+
+        if (!token || !authUser) {
+          throw new Error('Invalid response: missing token or user data');
+        }
+
         localStorage.setItem(config.tokenKey, token);
         localStorage.setItem(config.userKey, JSON.stringify(authUser));
-        
         setUser(authUser);
-        
+
         toast.success('Login successful!', {
           description: `Welcome back, ${authUser.name}`,
         });
@@ -83,7 +92,7 @@ export const useBaseAuth = (config: BaseAuthConfig): UseBaseAuthReturn => {
   const logout = async (): Promise<void> => {
     try {
       setIsLoading(true);
-      
+
       const token = localStorage.getItem(config.tokenKey);
       if (token) {
         await api.post(config.logoutEndpoint);
@@ -94,11 +103,11 @@ export const useBaseAuth = (config: BaseAuthConfig): UseBaseAuthReturn => {
       localStorage.removeItem(config.tokenKey);
       localStorage.removeItem(config.userKey);
       setUser(null);
-      
+
       toast.success('Logout successful!', {
         description: 'See you next time!',
       });
-      
+
       navigate(config.loginRoute);
       setIsLoading(false);
     }
@@ -108,28 +117,28 @@ export const useBaseAuth = (config: BaseAuthConfig): UseBaseAuthReturn => {
     try {
       const token = localStorage.getItem(config.tokenKey);
       const storedUser = localStorage.getItem(config.userKey);
-      
+
       if (token && storedUser) {
-        const response = await api.get(config.profileEndpoint);
-        
-        if (response.data.success) {
-          setUser(JSON.parse(storedUser));
+        if (config.profileEndpoint) {
+          try {
+            const response = await api.get(config.profileEndpoint);
+
+            if (response.data.success) {
+              setUser(JSON.parse(storedUser));
+            } else {
+              localStorage.removeItem(config.tokenKey);
+              localStorage.removeItem(config.userKey);
+              setUser(null);
+            }
+          } catch (error) {
+            setUser(JSON.parse(storedUser));
+          }
         } else {
-          localStorage.removeItem(config.tokenKey);
-          localStorage.removeItem(config.userKey);
-          setUser(null);
-          toast.warning('Session expired', {
-            description: 'Please login again',
-          });
+          setUser(JSON.parse(storedUser));
         }
       }
     } catch (error) {
-      localStorage.removeItem(config.tokenKey);
-      localStorage.removeItem(config.userKey);
-      setUser(null);
-      toast.warning('Session expired', {
-        description: 'Please login again',
-      });
+      console.error('Auth check error:', error);
     }
   };
 

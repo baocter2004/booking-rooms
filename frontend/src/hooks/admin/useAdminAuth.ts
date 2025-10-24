@@ -1,5 +1,5 @@
 import { useBaseAuth, type BaseUser } from '@/hooks/common/useBaseAuth';
-import { API_ADMIN_LOGIN, API_ADMIN_LOGOUT, API_ADMIN_PROFILE } from '@/utils/constants/api-url';
+import { API_ADMIN_LOGIN, API_ADMIN_LOGOUT } from '@/utils/constants/api-url';
 import type { AdminLoginFormData } from '@/validates/common/authSchema';
 
 interface UseAdminAuthReturn {
@@ -15,7 +15,7 @@ export const useAdminAuth = (): UseAdminAuthReturn => {
   const baseAuth = useBaseAuth({
     loginEndpoint: API_ADMIN_LOGIN,
     logoutEndpoint: API_ADMIN_LOGOUT,
-    profileEndpoint: API_ADMIN_PROFILE,
+    profileEndpoint: '',
     tokenKey: 'admin_token',
     userKey: 'admin_user',
     loginRoute: '/admin/login',

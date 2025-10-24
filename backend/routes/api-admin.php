@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\Admin\RoomTypeController;
 use App\Http\Controllers\Api\Admin\ServiceController;
 use App\Http\Controllers\Api\Admin\ServiceTypeController;
 use App\Http\Controllers\Api\Admin\StaffController;
+use App\Http\Controllers\Api\UploadController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')
@@ -20,6 +21,10 @@ Route::prefix('admin')
     ->middleware(['auth.role', 'role:admin'])
     ->group(function () {
         Route::get('dashboard', [DashboardController::class, 'index'])->name('dashboard');
+
+        // Upload routes
+        Route::post('upload/image', [UploadController::class, 'uploadImage'])->name('upload.image');
+        Route::post('upload/delete', [UploadController::class, 'deleteImage'])->name('upload.delete');
 
         Route::prefix('users')
             ->name('users.')

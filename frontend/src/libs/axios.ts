@@ -36,9 +36,24 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => {
     const data = response?.data?.data || {};
+    const currentPath = window.location.pathname;
+    
     if (Object.keys(data)?.includes('access_token')) {
-      localStorage.setItem('access_token', data?.access_token || '');
-      localStorage.setItem('expires_at', data?.expires_at || '');
+      const token = data?.access_token || '';
+      const expiresAt = data?.expires_at || '';
+      
+      // Store token based on the current route
+      if (currentPath.startsWith('/admin')) {
+        localStorage.setItem('admin_token', token);
+      } else if (currentPath.startsWith('/staff')) {
+        localStorage.setItem('staff_token', token);
+      } else {
+        localStorage.setItem('user_token', token);
+      }
+      
+      // Also store in generic keys for backward compatibility
+      localStorage.setItem('access_token', token);
+      localStorage.setItem('expires_at', expiresAt);
     }
     return response;
   },
