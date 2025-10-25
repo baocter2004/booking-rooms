@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
-import { Table } from '@/components/ui/table';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import { Pagination } from '@/components/ui/pagination';
 import {
   Building2,
   Plus,
@@ -18,42 +19,133 @@ import {
   MapPin,
   Loader2Icon,
   Eye,
+  Hotel,
+  Users,
+  Calendar,
+  Briefcase,
+  ChevronDown,
+  ChevronUp,
+  X,
+  Filter,
+  SortAsc,
+  CalendarIcon,
 } from 'lucide-react';
+import { Select } from '@/components/ui/select';
+
+interface SearchFilters {
+  search: string;
+  name: string;
+  address: string;
+  email: string;
+  phone: string;
+  from_date: string;
+  to_date: string;
+  sort: string;
+}
 
 export function HotelList() {
   const navigate = useNavigate();
-  const {
-    hotels,
-    loading,
-    pagination,
-    fetchHotels,
-    deleteHotel,
-  } = useHotels();
+  const { hotels, loading, pagination, fetchHotels, deleteHotel } = useHotels();
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [activeSearch, setActiveSearch] = useState('');
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  const [filters, setFilters] = useState<SearchFilters>({
+    search: '',
+    name: '',
+    address: '',
+    email: '',
+    phone: '',
+    from_date: '',
+    to_date: '',
+    sort: 'created_at:desc',
+  });
+  const [activeFilters, setActiveFilters] = useState<SearchFilters>({
+    search: '',
+    name: '',
+    address: '',
+    email: '',
+    phone: '',
+    from_date: '',
+    to_date: '',
+    sort: 'created_at:desc',
+  });
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletingHotelId, setDeletingHotelId] = useState<number | null>(null);
 
   useEffect(() => {
-    fetchHotels({ page: 1 });
+    fetchHotels({ page: 1, sort: 'created_at:desc' });
   }, [fetchHotels]);
 
+  const buildQueryParams = (currentFilters: SearchFilters) => {
+    const params: any = {};
+    
+    if (currentFilters.search) params.search = currentFilters.search;
+    if (currentFilters.name) params.name = currentFilters.name;
+    if (currentFilters.address) params.address = currentFilters.address;
+    if (currentFilters.email) params.email = currentFilters.email;
+    if (currentFilters.phone) params.phone = currentFilters.phone;
+    if (currentFilters.from_date) params.from_date = currentFilters.from_date;
+    if (currentFilters.to_date) params.to_date = currentFilters.to_date;
+    if (currentFilters.sort) params.sort = currentFilters.sort;
+    
+    return params;
+  };
+
   const handleSearch = () => {
-    setActiveSearch(searchTerm);
-    fetchHotels({ search: searchTerm, page: 1 });
+    setActiveFilters(filters);
+    const params = buildQueryParams(filters);
+    fetchHotels({ ...params, page: 1 });
   };
 
   const handleClearSearch = () => {
-    setSearchTerm('');
-    setActiveSearch('');
-    fetchHotels({ page: 1 });
+    const resetFilters: SearchFilters = {
+      search: '',
+      name: '',
+      address: '',
+      email: '',
+      phone: '',
+      from_date: '',
+      to_date: '',
+      sort: 'created_at:desc',
+    };
+    setFilters(resetFilters);
+    setActiveFilters(resetFilters);
+    fetchHotels({ page: 1, sort: 'created_at:desc' });
+  };
+
+  const handleFilterChange = (key: keyof SearchFilters, value: string) => {
+    setFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       handleSearch();
     }
+  };
+
+  const hasActiveFilters = () => {
+    return (
+      activeFilters.search ||
+      activeFilters.name ||
+      activeFilters.address ||
+      activeFilters.email ||
+      activeFilters.phone ||
+      activeFilters.from_date ||
+      activeFilters.to_date ||
+      activeFilters.sort !== 'created_at:desc'
+    );
+  };
+
+  const getActiveFiltersCount = () => {
+    let count = 0;
+    if (activeFilters.search) count++;
+    if (activeFilters.name) count++;
+    if (activeFilters.address) count++;
+    if (activeFilters.email) count++;
+    if (activeFilters.phone) count++;
+    if (activeFilters.from_date) count++;
+    if (activeFilters.to_date) count++;
+    if (activeFilters.sort !== 'created_at:desc') count++;
+    return count;
   };
 
   const handleDeleteClick = (id: number) => {
@@ -67,7 +159,8 @@ export function HotelList() {
       if (success) {
         setIsDeleteModalOpen(false);
         setDeletingHotelId(null);
-        fetchHotels(activeSearch ? { search: activeSearch, page: pagination.currentPage } : { page: pagination.currentPage });
+        const params = buildQueryParams(activeFilters);
+        fetchHotels({ ...params, page: pagination.currentPage });
       }
     }
   };
@@ -81,9 +174,7 @@ export function HotelList() {
             <Building2 className="h-8 w-8 text-primary" />
             Hotels Management
           </h1>
-          <p className="text-muted-foreground mt-1">
-            Manage all hotels in your system
-          </p>
+          <p className="text-muted-foreground mt-1">Manage all hotels in your system</p>
         </div>
         <Button onClick={() => navigate('/admin/hotels/create')} size="lg" className="gap-2">
           <Plus className="h-5 w-5" />
@@ -101,28 +192,281 @@ export function HotelList() {
               <Input
                 id="search"
                 placeholder="Search by name, address, email or phone..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                value={filters.search}
+                onChange={(e) => handleFilterChange('search', e.target.value)}
                 onKeyDown={handleKeyDown}
                 className="pl-10"
               />
             </div>
           </div>
           <div className="flex gap-2">
+            <Button
+              onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
+              variant="outline"
+              disabled={loading}
+              className="gap-2"
+            >
+              <Filter className="h-4 w-4" />
+              Advanced
+              {showAdvancedSearch ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
+              {getActiveFiltersCount() > 0 && (
+                <Badge variant="default" className="ml-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
+                  {getActiveFiltersCount()}
+                </Badge>
+              )}
+            </Button>
             <Button onClick={handleSearch} variant="default" disabled={loading}>
               <Search className="h-4 w-4 mr-2" />
               Search
             </Button>
-            {activeSearch && (
+            {hasActiveFilters() && (
               <Button onClick={handleClearSearch} variant="outline" disabled={loading}>
-                Clear
+                <X className="h-4 w-4 mr-2" />
+                Clear All
               </Button>
             )}
           </div>
         </div>
-        {activeSearch && (
-          <div className="mt-4 text-sm text-muted-foreground">
-            Showing results for: <span className="font-semibold">"{activeSearch}"</span>
+
+        {/* Advanced Search Section */}
+        {showAdvancedSearch && (
+          <div className="mt-6 pt-6 border-t space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div>
+                <Label htmlFor="filter-name">Hotel Name</Label>
+                <Input
+                  id="filter-name"
+                  placeholder="Filter by name..."
+                  value={filters.name}
+                  onChange={(e) => handleFilterChange('name', e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="mt-2"
+                />
+              </div>
+              <div>
+                <Label htmlFor="filter-address">Address</Label>
+                <Input
+                  id="filter-address"
+                  placeholder="Filter by address..."
+                  value={filters.address}
+                  onChange={(e) => handleFilterChange('address', e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="mt-2"
+                />
+              </div>
+              <div>
+                <Label htmlFor="filter-email">Email</Label>
+                <Input
+                  id="filter-email"
+                  placeholder="Filter by email..."
+                  value={filters.email}
+                  onChange={(e) => handleFilterChange('email', e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="mt-2"
+                />
+              </div>
+              <div>
+                <Label htmlFor="filter-phone">Phone</Label>
+                <Input
+                  id="filter-phone"
+                  placeholder="Filter by phone..."
+                  value={filters.phone}
+                  onChange={(e) => handleFilterChange('phone', e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  className="mt-2"
+                />
+              </div>
+              <div>
+                <Label htmlFor="filter-from-date">From Date</Label>
+                <div className="relative mt-2">
+                  <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input
+                    id="filter-from-date"
+                    type="date"
+                    value={filters.from_date}
+                    onChange={(e) => handleFilterChange('from_date', e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="filter-to-date">To Date</Label>
+                <div className="relative mt-2">
+                  <CalendarIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                  <Input
+                    id="filter-to-date"
+                    type="date"
+                    value={filters.to_date}
+                    onChange={(e) => handleFilterChange('to_date', e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Sort Options */}
+            <div className="flex items-end gap-4">
+              <div className="flex-1 max-w-xs">
+                <Label htmlFor="sort">Sort By</Label>
+                <select
+                  id="sort"
+                  value={filters.sort}
+                  onChange={(e) => handleFilterChange('sort', e.target.value)}
+                  className="mt-2 w-full h-10 px-3 py-2 text-sm border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                >
+                  <option value="created_at:desc">Newest First</option>
+                  <option value="created_at:asc">Oldest First</option>
+                  <option value="name:asc">Name (A-Z)</option>
+                  <option value="name:desc">Name (Z-A)</option>
+                  <option value="rooms_count:desc">Most Rooms</option>
+                  <option value="rooms_count:asc">Least Rooms</option>
+                  <option value="staff_count:desc">Most Staff</option>
+                  <option value="staff_count:asc">Least Staff</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Active Filters Display */}
+        {hasActiveFilters() && (
+          <div className="mt-4 pt-4 border-t">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="text-sm font-medium text-muted-foreground">Active Filters:</span>
+              {activeFilters.search && (
+                <Badge variant="secondary" className="gap-1">
+                  Search: {activeFilters.search}
+                  <button
+                    onClick={() => {
+                      setFilters((prev) => ({ ...prev, search: '' }));
+                      setActiveFilters((prev) => ({ ...prev, search: '' }));
+                      const params = buildQueryParams({ ...activeFilters, search: '' });
+                      fetchHotels({ ...params, page: 1 });
+                    }}
+                    className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {activeFilters.name && (
+                <Badge variant="secondary" className="gap-1">
+                  Name: {activeFilters.name}
+                  <button
+                    onClick={() => {
+                      setFilters((prev) => ({ ...prev, name: '' }));
+                      setActiveFilters((prev) => ({ ...prev, name: '' }));
+                      const params = buildQueryParams({ ...activeFilters, name: '' });
+                      fetchHotels({ ...params, page: 1 });
+                    }}
+                    className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {activeFilters.address && (
+                <Badge variant="secondary" className="gap-1">
+                  Address: {activeFilters.address}
+                  <button
+                    onClick={() => {
+                      setFilters((prev) => ({ ...prev, address: '' }));
+                      setActiveFilters((prev) => ({ ...prev, address: '' }));
+                      const params = buildQueryParams({ ...activeFilters, address: '' });
+                      fetchHotels({ ...params, page: 1 });
+                    }}
+                    className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {activeFilters.email && (
+                <Badge variant="secondary" className="gap-1">
+                  Email: {activeFilters.email}
+                  <button
+                    onClick={() => {
+                      setFilters((prev) => ({ ...prev, email: '' }));
+                      setActiveFilters((prev) => ({ ...prev, email: '' }));
+                      const params = buildQueryParams({ ...activeFilters, email: '' });
+                      fetchHotels({ ...params, page: 1 });
+                    }}
+                    className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {activeFilters.phone && (
+                <Badge variant="secondary" className="gap-1">
+                  Phone: {activeFilters.phone}
+                  <button
+                    onClick={() => {
+                      setFilters((prev) => ({ ...prev, phone: '' }));
+                      setActiveFilters((prev) => ({ ...prev, phone: '' }));
+                      const params = buildQueryParams({ ...activeFilters, phone: '' });
+                      fetchHotels({ ...params, page: 1 });
+                    }}
+                    className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {activeFilters.from_date && (
+                <Badge variant="secondary" className="gap-1">
+                  From: {activeFilters.from_date}
+                  <button
+                    onClick={() => {
+                      setFilters((prev) => ({ ...prev, from_date: '' }));
+                      setActiveFilters((prev) => ({ ...prev, from_date: '' }));
+                      const params = buildQueryParams({ ...activeFilters, from_date: '' });
+                      fetchHotels({ ...params, page: 1 });
+                    }}
+                    className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {activeFilters.to_date && (
+                <Badge variant="secondary" className="gap-1">
+                  To: {activeFilters.to_date}
+                  <button
+                    onClick={() => {
+                      setFilters((prev) => ({ ...prev, to_date: '' }));
+                      setActiveFilters((prev) => ({ ...prev, to_date: '' }));
+                      const params = buildQueryParams({ ...activeFilters, to_date: '' });
+                      fetchHotels({ ...params, page: 1 });
+                    }}
+                    className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+              {activeFilters.sort !== 'created_at:desc' && (
+                <Badge variant="secondary" className="gap-1">
+                  <SortAsc className="h-3 w-3" />
+                  Sort: {activeFilters.sort.replace(':', ' ').replace('_', ' ')}
+                  <button
+                    onClick={() => {
+                      setFilters((prev) => ({ ...prev, sort: 'created_at:desc' }));
+                      setActiveFilters((prev) => ({ ...prev, sort: 'created_at:desc' }));
+                      const params = buildQueryParams({ ...activeFilters, sort: 'created_at:desc' });
+                      fetchHotels({ ...params, page: 1 });
+                    }}
+                    className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </Badge>
+              )}
+            </div>
           </div>
         )}
       </Card>
@@ -131,57 +475,58 @@ export function HotelList() {
       <Card className="p-6">
         <div className="rounded-md border">
           <Table>
-            <thead>
-              <tr className="bg-muted/50">
-                <th className="p-4 text-left font-semibold">Hotel Name</th>
-                <th className="p-4 text-left font-semibold">Contact</th>
-                <th className="p-4 text-left font-semibold">Address</th>
-                <th className="p-4 text-left font-semibold">Status</th>
-                <th className="p-4 text-right font-semibold">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="p-4 text-left font-semibold">Hotel Name</TableHead>
+                <TableHead className="p-4 text-left font-semibold">Contact</TableHead>
+                <TableHead className="p-4 text-left font-semibold">Address</TableHead>
+                <TableHead className="p-4 text-left font-semibold">Room Count</TableHead>
+                <TableHead className="p-4 text-left font-semibold">Staff Count</TableHead>
+                <TableHead className="p-4 text-left font-semibold">Service Count</TableHead>
+                <TableHead className="p-4 text-left font-semibold">Booking Count</TableHead>
+                <TableHead className="p-4 text-center font-semibold">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
               {loading ? (
-                <tr>
-                  <td colSpan={5} className="p-8">
+                <TableRow>
+                  <td colSpan={8} className="p-8">
                     <div className="flex justify-center items-center">
                       <Loader2Icon className="h-8 w-8 animate-spin text-primary" />
                     </div>
                   </td>
-                </tr>
+                </TableRow>
               ) : hotels.length === 0 ? (
-                <tr>
-                  <td colSpan={5} className="p-8 text-center text-muted-foreground">
+                <TableRow>
+                  <TableCell colSpan={8} className="p-8 text-center text-muted-foreground">
                     No hotels found. Click "Add New Hotel" to create one.
-                  </td>
-                </tr>
+                  </TableCell>
+                </TableRow>
               ) : (
                 hotels.map((hotel) => (
-                  <tr key={hotel.id} className="border-t hover:bg-muted/30 transition-colors">
-                    <td className="p-4">
-                      <div className="flex items-start gap-3">
+                  <TableRow key={hotel.id} className="border-t hover:bg-muted/30 transition-colors">
+                    <TableCell className="p-4 text-left">
+                      <div className="flex items-start gap-3 max-w-xs">
                         {hotel.image_url ? (
                           <img
                             src={hotel.image_url}
                             alt={hotel.name}
-                            className="w-12 h-12 rounded-lg object-cover"
+                            className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
                           />
                         ) : (
-                          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
                             <Building2 className="h-6 w-6 text-primary" />
                           </div>
                         )}
-                        <div>
-                          <p className="font-semibold">{hotel.name}</p>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold truncate">{hotel.name}</p>
                           {hotel.description && (
-                            <p className="text-sm text-muted-foreground line-clamp-1">
-                              {hotel.description}
-                            </p>
+                            <p className="text-sm text-muted-foreground line-clamp-1">{hotel.description}</p>
                           )}
                         </div>
                       </div>
-                    </td>
-                    <td className="p-4">
+                    </TableCell>
+                    <TableCell className="p-4">
                       <div className="space-y-1">
                         <div className="flex items-center gap-2 text-sm">
                           <Mail className="h-3.5 w-3.5 text-muted-foreground" />
@@ -192,34 +537,53 @@ export function HotelList() {
                           <span>{hotel.phone}</span>
                         </div>
                       </div>
-                    </td>
-                    <td className="p-4">
+                    </TableCell>
+                    <TableCell className="p-4">
                       <div className="flex items-start gap-2">
                         <MapPin className="h-4 w-4 text-muted-foreground mt-0.5 flex-shrink-0" />
                         <span className="text-sm">{hotel.address}</span>
                       </div>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex flex-wrap gap-2">
-                        {hotel.rooms_count !== undefined && (
-                          <Badge variant="secondary">
-                            {hotel.rooms_count} Rooms
-                          </Badge>
-                        )}
-                        {hotel.staff_count !== undefined && (
-                          <Badge variant="outline">
-                            {hotel.staff_count} Staff
-                          </Badge>
-                        )}
+                    </TableCell>
+                    <TableCell className="p-4 text-center">
+                      <div className="flex justify-center">
+                        <Badge variant="secondary" className="gap-1.5 px-3 py-1">
+                          <Hotel className="h-3.5 w-3.5" />
+                          {hotel.rooms_count || 0} Rooms
+                        </Badge>
                       </div>
-                    </td>
-                    <td className="p-4">
-                      <div className="flex justify-end gap-2">
+                    </TableCell>
+                    <TableCell className="p-4 text-center">
+                      <div className="flex justify-center">
+                        <Badge variant="secondary" className="gap-1.5 px-3 py-1">
+                          <Users className="h-3.5 w-3.5" />
+                          {hotel.staff_count || 0} Staff
+                        </Badge>
+                      </div>
+                    </TableCell>
+                    <TableCell className="p-4 text-center">
+                      <div className="flex justify-center">
+                        <Badge variant="secondary" className="gap-1.5 px-3 py-1">
+                          <Briefcase className="h-3.5 w-3.5" />
+                          {hotel.services_count || 0} Services
+                        </Badge>
+                      </div>
+                    </TableCell>
+                    <TableCell className="p-4 text-center">
+                      <div className="flex justify-center">
+                        <Badge variant="secondary" className="gap-1.5 px-3 py-1">
+                          <Calendar className="h-3.5 w-3.5" />
+                          {hotel.bookings_count || 0} Bookings
+                        </Badge>
+                      </div>
+                    </TableCell>
+                    <TableCell className="p-4">
+                      <div className="flex justify-center gap-2">
                         <Button
                           variant="ghost"
                           size="sm"
                           onClick={() => navigate(`/admin/hotels/${hotel.id}`)}
                           title="View Details"
+                          className="h-8 w-8 p-0"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -228,6 +592,7 @@ export function HotelList() {
                           size="sm"
                           onClick={() => navigate(`/admin/hotels/${hotel.id}/edit`)}
                           title="Edit"
+                          className="h-8 w-8 p-0 text-blue-600 hover:text-blue-700 hover:bg-blue-50"
                         >
                           <Pencil className="h-4 w-4" />
                         </Button>
@@ -235,51 +600,37 @@ export function HotelList() {
                           variant="ghost"
                           size="sm"
                           onClick={() => handleDeleteClick(hotel.id)}
-                          className="text-destructive hover:text-destructive"
+                          className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-red-50"
                           title="Delete"
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
                       </div>
-                    </td>
-                  </tr>
+                    </TableCell>
+                  </TableRow>
                 ))
               )}
-            </tbody>
+            </TableBody>
           </Table>
         </div>
 
         {/* Pagination */}
         {!loading && hotels.length > 0 && (
-          <div className="flex items-center justify-between mt-6">
+          <div className="flex items-center justify-between mt-6 pt-6 border-t">
             <p className="text-sm text-muted-foreground">
-              Showing {(pagination.currentPage - 1) * pagination.perPage + 1} to{' '}
-              {Math.min(pagination.currentPage * pagination.perPage, pagination.total)} of{' '}
-              {pagination.total} hotels
+              Showing <span className="font-medium">{(pagination.currentPage - 1) * pagination.perPage + 1}</span> to{' '}
+              <span className="font-medium">
+                {Math.min(pagination.currentPage * pagination.perPage, pagination.total)}
+              </span>{' '}
+              of <span className="font-medium">{pagination.total}</span> hotels
             </p>
-            <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={pagination.currentPage === 1 || loading}
-                onClick={() => fetchHotels(activeSearch ? { search: activeSearch, page: pagination.currentPage - 1 } : { page: pagination.currentPage - 1 })}
-              >
-                Previous
-              </Button>
-              <div className="flex items-center gap-2 px-3">
-                <span className="text-sm">
-                  Page {pagination.currentPage} of {pagination.lastPage}
-                </span>
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={pagination.currentPage === pagination.lastPage || loading}
-                onClick={() => fetchHotels(activeSearch ? { search: activeSearch, page: pagination.currentPage + 1 } : { page: pagination.currentPage + 1 })}
-              >
-                Next
-              </Button>
-            </div>
+            <Pagination
+              currentPage={pagination.currentPage}
+              totalPages={pagination.lastPage}
+              onPageChange={(page) => fetchHotels(filters.search ? { search: filters.search, page } : { page })}
+              showCount={5}
+              disabled={loading}
+            />
           </div>
         )}
       </Card>
@@ -302,11 +653,7 @@ export function HotelList() {
               >
                 Cancel
               </Button>
-              <Button
-                variant="destructive"
-                onClick={handleConfirmDelete}
-                disabled={loading}
-              >
+              <Button variant="destructive" onClick={handleConfirmDelete} disabled={loading}>
                 {loading ? 'Deleting...' : 'Delete'}
               </Button>
             </div>
@@ -316,4 +663,3 @@ export function HotelList() {
     </div>
   );
 }
-

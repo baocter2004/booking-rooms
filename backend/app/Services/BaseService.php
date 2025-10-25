@@ -72,9 +72,13 @@ abstract class BaseService
         return $this->getRepository()->filter($this->buildFilterParams($params));
     }
 
-    public function find(int|string $id): ?Model
+    public function find(int|string $id, array $params = []): ?Model
     {
-        return $this->getRepository()->find($id);
+        if (empty($params)) {
+            return $this->getRepository()->find($id);
+        }
+        $params['wheres'] = array_merge($params['wheres'] ?? [], [['id', '=', $id]]);
+        return $this->filter($params)->first();
     }
 
     public function findBy(array $params = []): ?Model

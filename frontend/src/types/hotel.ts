@@ -11,6 +11,7 @@ export interface Hotel {
   deleted_at?: string | null;
   rooms_count?: number;
   staff_count?: number;
+  services_count?: number;
   bookings_count?: number;
 }
 

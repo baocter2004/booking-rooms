@@ -17,6 +17,10 @@ class HotelResource extends BaseResource
             'email' => $this->email,
             'description' => $this->description,
             'image_url' => $this->image_url,
+            'rooms_count' => $this->rooms_count ?? 0,
+            'staff_count' => $this->staff_count ?? 0,
+            'bookings_count' => $this->bookings_count ?? 0,
+            'services_count' => $this->services_count ?? 0,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ];

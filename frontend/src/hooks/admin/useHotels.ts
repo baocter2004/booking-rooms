@@ -68,13 +68,16 @@ export const useHotels = (): UseHotelsReturn => {
       setLoading(true);
       const response = await axiosGet(API_ADMIN_HOTELS_SHOW(id));
 
-      if (response.success && response.data) {
+      if (response.data) {
         setHotel(response.data);
+      } else {
+        setHotel(null);
       }
     } catch (error: any) {
       toast.error('Failed to fetch hotel', {
         description: error.message || 'An error occurred',
       });
+      setHotel(null);
     } finally {
       setLoading(false);
     }

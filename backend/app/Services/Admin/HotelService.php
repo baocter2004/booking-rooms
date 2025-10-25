@@ -26,7 +26,7 @@ class HotelService extends BaseAdminCrudService
         $orWheres = Arr::get($params, 'or_wheres', []);
         $sort = Arr::get($params, 'sort', 'created_at:desc');
         $relates = Arr::get($params, 'relates', []);
-        $relatesCount = Arr::get($params, 'relates_count', ['rooms', 'staff']);
+        $relatesCount = Arr::get($params, 'relates_count', ['rooms', 'staff', 'bookings', 'services']);
 
         if (!empty($params['from_date'])) {
             $whereEquals[] = ['created_at', '>=', $params['from_date']];
@@ -70,5 +70,22 @@ class HotelService extends BaseAdminCrudService
             'relates' => $relates,
             'relates_count' => $relatesCount,
         ];
+    }
+
+    public function find(int|string $id, array $params = []): ?\Illuminate\Database\Eloquent\Model
+    {
+        if (empty($params)) {
+            $params = [
+                'relates' => [
+                    'rooms.roomType',
+                    'staff.staffRole',
+                    'services.serviceType',
+                    'bookings.user',
+                    'appointments',
+                    'reviews'
+                ],
+            ];
+        }
+        return parent::find($id, $params);
     }
 }

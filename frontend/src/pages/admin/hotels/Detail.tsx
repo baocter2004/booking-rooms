@@ -16,6 +16,7 @@ import {
   Briefcase,
   Calendar,
 } from 'lucide-react';
+import { Table, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 export function HotelDetail() {
   const { id } = useParams<{ id: string }>();
@@ -196,7 +197,7 @@ export function HotelDetail() {
               <Briefcase className="h-6 w-6 text-orange-600 dark:text-orange-300" />
             </div>
             <div>
-              <p className="text-2xl font-bold">0</p>
+              <p className="text-2xl font-bold">{hotel.services_count || 0}</p>
               <p className="text-sm text-muted-foreground">Services</p>
             </div>
           </div>
@@ -215,7 +216,16 @@ export function HotelDetail() {
         </div>
         <div className="text-center py-12 text-muted-foreground">
           <BedDouble className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <p>Room management coming soon</p>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Room Name</TableHead>
+                <TableHead>Room Type</TableHead>
+                <TableHead>Room Price</TableHead>
+                <TableHead>Room Status</TableHead>
+              </TableRow>
+            </TableHeader>
+          </Table>
         </div>
       </Card>
 
