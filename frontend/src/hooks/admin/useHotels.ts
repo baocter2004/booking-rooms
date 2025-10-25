@@ -7,6 +7,7 @@ import {
   API_ADMIN_HOTELS_DELETE,
 } from '@/utils/constants/api-url';
 import type { Hotel, HotelFormData } from '@/types/hotel';
+import { buildQueryParams, type HotelFilters } from '@/constants/filters';
 import { toast } from 'sonner';
 
 interface UseHotelsReturn {
@@ -19,7 +20,7 @@ interface UseHotelsReturn {
     total: number;
     lastPage: number;
   };
-  fetchHotels: (params?: Record<string, any>) => Promise<void>;
+  fetchHotels: (filters?: HotelFilters) => Promise<void>;
   fetchHotel: (id: number) => Promise<void>;
   createHotel: (data: HotelFormData) => Promise<boolean>;
   updateHotel: (id: number, data: HotelFormData) => Promise<boolean>;
@@ -37,9 +38,11 @@ export const useHotels = (): UseHotelsReturn => {
     lastPage: 1,
   });
 
-  const fetchHotels = useCallback(async (params?: Record<string, any>) => {
+  const fetchHotels = useCallback(async (filters?: HotelFilters) => {
     try {
       setLoading(true);
+      // Build clean query params, removing default values
+      const params = filters ? buildQueryParams(filters) : {};
       const response = await axiosGet(API_ADMIN_HOTELS, { params });
 
       if (response.data) {

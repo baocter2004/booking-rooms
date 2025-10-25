@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useHotels } from '@/hooks/admin/useHotels';
+import { DEFAULT_SORT, type HotelFilters } from '@/constants/filters';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -8,6 +9,7 @@ import { Card } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Pagination } from '@/components/ui/pagination';
+import { Select, SelectTrigger, SelectContent, SelectItem } from '@/components/ui/select';
 import {
   Building2,
   Plus,
@@ -30,9 +32,8 @@ import {
   SortAsc,
   CalendarIcon,
 } from 'lucide-react';
-import { Select } from '@/components/ui/select';
 
-interface SearchFilters {
+interface SearchFilters extends Omit<HotelFilters, 'page'> {
   search: string;
   name: string;
   address: string;
@@ -43,73 +44,40 @@ interface SearchFilters {
   sort: string;
 }
 
+const DEFAULT_FILTERS: SearchFilters = {
+  search: '',
+  name: '',
+  address: '',
+  email: '',
+  phone: '',
+  from_date: '',
+  to_date: '',
+  sort: DEFAULT_SORT,
+};
+
 export function HotelList() {
   const navigate = useNavigate();
   const { hotels, loading, pagination, fetchHotels, deleteHotel } = useHotels();
 
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
-  const [filters, setFilters] = useState<SearchFilters>({
-    search: '',
-    name: '',
-    address: '',
-    email: '',
-    phone: '',
-    from_date: '',
-    to_date: '',
-    sort: 'created_at:desc',
-  });
-  const [activeFilters, setActiveFilters] = useState<SearchFilters>({
-    search: '',
-    name: '',
-    address: '',
-    email: '',
-    phone: '',
-    from_date: '',
-    to_date: '',
-    sort: 'created_at:desc',
-  });
+  const [filters, setFilters] = useState<SearchFilters>(DEFAULT_FILTERS);
+  const [activeFilters, setActiveFilters] = useState<SearchFilters>(DEFAULT_FILTERS);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletingHotelId, setDeletingHotelId] = useState<number | null>(null);
 
   useEffect(() => {
-    fetchHotels({ page: 1, sort: 'created_at:desc' });
+    fetchHotels();
   }, [fetchHotels]);
-
-  const buildQueryParams = (currentFilters: SearchFilters) => {
-    const params: any = {};
-    
-    if (currentFilters.search) params.search = currentFilters.search;
-    if (currentFilters.name) params.name = currentFilters.name;
-    if (currentFilters.address) params.address = currentFilters.address;
-    if (currentFilters.email) params.email = currentFilters.email;
-    if (currentFilters.phone) params.phone = currentFilters.phone;
-    if (currentFilters.from_date) params.from_date = currentFilters.from_date;
-    if (currentFilters.to_date) params.to_date = currentFilters.to_date;
-    if (currentFilters.sort) params.sort = currentFilters.sort;
-    
-    return params;
-  };
 
   const handleSearch = () => {
     setActiveFilters(filters);
-    const params = buildQueryParams(filters);
-    fetchHotels({ ...params, page: 1 });
+    fetchHotels({ ...filters, page: 1 });
   };
 
   const handleClearSearch = () => {
-    const resetFilters: SearchFilters = {
-      search: '',
-      name: '',
-      address: '',
-      email: '',
-      phone: '',
-      from_date: '',
-      to_date: '',
-      sort: 'created_at:desc',
-    };
-    setFilters(resetFilters);
-    setActiveFilters(resetFilters);
-    fetchHotels({ page: 1, sort: 'created_at:desc' });
+    setFilters(DEFAULT_FILTERS);
+    setActiveFilters(DEFAULT_FILTERS);
+    fetchHotels();
   };
 
   const handleFilterChange = (key: keyof SearchFilters, value: string) => {
@@ -131,7 +99,7 @@ export function HotelList() {
       activeFilters.phone ||
       activeFilters.from_date ||
       activeFilters.to_date ||
-      activeFilters.sort !== 'created_at:desc'
+      activeFilters.sort !== DEFAULT_SORT
     );
   };
 
@@ -144,7 +112,7 @@ export function HotelList() {
     if (activeFilters.phone) count++;
     if (activeFilters.from_date) count++;
     if (activeFilters.to_date) count++;
-    if (activeFilters.sort !== 'created_at:desc') count++;
+    if (activeFilters.sort !== DEFAULT_SORT) count++;
     return count;
   };
 
@@ -159,10 +127,16 @@ export function HotelList() {
       if (success) {
         setIsDeleteModalOpen(false);
         setDeletingHotelId(null);
-        const params = buildQueryParams(activeFilters);
-        fetchHotels({ ...params, page: pagination.currentPage });
+        fetchHotels({ ...activeFilters, page: pagination.currentPage });
       }
     }
+  };
+
+  const handleRemoveFilter = (key: keyof SearchFilters) => {
+    const newFilters = { ...activeFilters, [key]: key === 'sort' ? DEFAULT_SORT : '' };
+    setFilters(newFilters);
+    setActiveFilters(newFilters);
+    fetchHotels({ ...newFilters, page: 1 });
   };
 
   return (
@@ -312,21 +286,23 @@ export function HotelList() {
             <div className="flex items-end gap-4">
               <div className="flex-1 max-w-xs">
                 <Label htmlFor="sort">Sort By</Label>
-                <select
-                  id="sort"
+                <Select
                   value={filters.sort}
-                  onChange={(e) => handleFilterChange('sort', e.target.value)}
-                  className="mt-2 w-full h-10 px-3 py-2 text-sm border border-input bg-background rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                  onValueChange={(value) => handleFilterChange('sort', value)}
                 >
-                  <option value="created_at:desc">Newest First</option>
-                  <option value="created_at:asc">Oldest First</option>
-                  <option value="name:asc">Name (A-Z)</option>
-                  <option value="name:desc">Name (Z-A)</option>
-                  <option value="rooms_count:desc">Most Rooms</option>
-                  <option value="rooms_count:asc">Least Rooms</option>
-                  <option value="staff_count:desc">Most Staff</option>
-                  <option value="staff_count:asc">Least Staff</option>
-                </select>
+                  <SelectTrigger className="mt-2">
+                    <SelectContent size="lg">
+                      <SelectItem value="created_at:desc">Newest First</SelectItem>
+                      <SelectItem value="created_at:asc">Oldest First</SelectItem>
+                      <SelectItem value="name:asc">Name (A-Z)</SelectItem>
+                      <SelectItem value="name:desc">Name (Z-A)</SelectItem>
+                      <SelectItem value="rooms_count:desc">Most Rooms</SelectItem>
+                      <SelectItem value="rooms_count:asc">Least Rooms</SelectItem>
+                      <SelectItem value="staff_count:desc">Most Staff</SelectItem>
+                      <SelectItem value="staff_count:asc">Least Staff</SelectItem>
+                    </SelectContent>
+                  </SelectTrigger>
+                </Select>
               </div>
             </div>
           </div>
@@ -341,12 +317,7 @@ export function HotelList() {
                 <Badge variant="secondary" className="gap-1">
                   Search: {activeFilters.search}
                   <button
-                    onClick={() => {
-                      setFilters((prev) => ({ ...prev, search: '' }));
-                      setActiveFilters((prev) => ({ ...prev, search: '' }));
-                      const params = buildQueryParams({ ...activeFilters, search: '' });
-                      fetchHotels({ ...params, page: 1 });
-                    }}
+                    onClick={() => handleRemoveFilter('search')}
                     className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5"
                   >
                     <X className="h-3 w-3" />
@@ -357,12 +328,7 @@ export function HotelList() {
                 <Badge variant="secondary" className="gap-1">
                   Name: {activeFilters.name}
                   <button
-                    onClick={() => {
-                      setFilters((prev) => ({ ...prev, name: '' }));
-                      setActiveFilters((prev) => ({ ...prev, name: '' }));
-                      const params = buildQueryParams({ ...activeFilters, name: '' });
-                      fetchHotels({ ...params, page: 1 });
-                    }}
+                    onClick={() => handleRemoveFilter('name')}
                     className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5"
                   >
                     <X className="h-3 w-3" />
@@ -373,12 +339,7 @@ export function HotelList() {
                 <Badge variant="secondary" className="gap-1">
                   Address: {activeFilters.address}
                   <button
-                    onClick={() => {
-                      setFilters((prev) => ({ ...prev, address: '' }));
-                      setActiveFilters((prev) => ({ ...prev, address: '' }));
-                      const params = buildQueryParams({ ...activeFilters, address: '' });
-                      fetchHotels({ ...params, page: 1 });
-                    }}
+                    onClick={() => handleRemoveFilter('address')}
                     className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5"
                   >
                     <X className="h-3 w-3" />
@@ -389,12 +350,7 @@ export function HotelList() {
                 <Badge variant="secondary" className="gap-1">
                   Email: {activeFilters.email}
                   <button
-                    onClick={() => {
-                      setFilters((prev) => ({ ...prev, email: '' }));
-                      setActiveFilters((prev) => ({ ...prev, email: '' }));
-                      const params = buildQueryParams({ ...activeFilters, email: '' });
-                      fetchHotels({ ...params, page: 1 });
-                    }}
+                    onClick={() => handleRemoveFilter('email')}
                     className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5"
                   >
                     <X className="h-3 w-3" />
@@ -405,12 +361,7 @@ export function HotelList() {
                 <Badge variant="secondary" className="gap-1">
                   Phone: {activeFilters.phone}
                   <button
-                    onClick={() => {
-                      setFilters((prev) => ({ ...prev, phone: '' }));
-                      setActiveFilters((prev) => ({ ...prev, phone: '' }));
-                      const params = buildQueryParams({ ...activeFilters, phone: '' });
-                      fetchHotels({ ...params, page: 1 });
-                    }}
+                    onClick={() => handleRemoveFilter('phone')}
                     className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5"
                   >
                     <X className="h-3 w-3" />
@@ -421,12 +372,7 @@ export function HotelList() {
                 <Badge variant="secondary" className="gap-1">
                   From: {activeFilters.from_date}
                   <button
-                    onClick={() => {
-                      setFilters((prev) => ({ ...prev, from_date: '' }));
-                      setActiveFilters((prev) => ({ ...prev, from_date: '' }));
-                      const params = buildQueryParams({ ...activeFilters, from_date: '' });
-                      fetchHotels({ ...params, page: 1 });
-                    }}
+                    onClick={() => handleRemoveFilter('from_date')}
                     className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5"
                   >
                     <X className="h-3 w-3" />
@@ -437,29 +383,19 @@ export function HotelList() {
                 <Badge variant="secondary" className="gap-1">
                   To: {activeFilters.to_date}
                   <button
-                    onClick={() => {
-                      setFilters((prev) => ({ ...prev, to_date: '' }));
-                      setActiveFilters((prev) => ({ ...prev, to_date: '' }));
-                      const params = buildQueryParams({ ...activeFilters, to_date: '' });
-                      fetchHotels({ ...params, page: 1 });
-                    }}
+                    onClick={() => handleRemoveFilter('to_date')}
                     className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5"
                   >
                     <X className="h-3 w-3" />
                   </button>
                 </Badge>
               )}
-              {activeFilters.sort !== 'created_at:desc' && (
+              {activeFilters.sort !== DEFAULT_SORT && (
                 <Badge variant="secondary" className="gap-1">
                   <SortAsc className="h-3 w-3" />
                   Sort: {activeFilters.sort.replace(':', ' ').replace('_', ' ')}
                   <button
-                    onClick={() => {
-                      setFilters((prev) => ({ ...prev, sort: 'created_at:desc' }));
-                      setActiveFilters((prev) => ({ ...prev, sort: 'created_at:desc' }));
-                      const params = buildQueryParams({ ...activeFilters, sort: 'created_at:desc' });
-                      fetchHotels({ ...params, page: 1 });
-                    }}
+                    onClick={() => handleRemoveFilter('sort')}
                     className="ml-1 hover:bg-secondary-foreground/20 rounded-full p-0.5"
                   >
                     <X className="h-3 w-3" />
@@ -627,7 +563,7 @@ export function HotelList() {
             <Pagination
               currentPage={pagination.currentPage}
               totalPages={pagination.lastPage}
-              onPageChange={(page) => fetchHotels(filters.search ? { search: filters.search, page } : { page })}
+              onPageChange={(page) => fetchHotels({ ...activeFilters, page })}
               showCount={5}
               disabled={loading}
             />
