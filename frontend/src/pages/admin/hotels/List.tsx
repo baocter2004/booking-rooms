@@ -583,14 +583,6 @@ export function HotelList() {
 
         {/* Pagination */}
         {!loading && hotels.length > 0 && (
-          <div className="flex items-center justify-between mt-6 pt-6 border-t">
-            <p className="text-sm text-muted-foreground">
-              Showing <span className="font-medium">{(pagination.currentPage - 1) * pagination.perPage + 1}</span> to{' '}
-              <span className="font-medium">
-                {Math.min(pagination.currentPage * pagination.perPage, pagination.total)}
-              </span>{' '}
-              of <span className="font-medium">{pagination.total}</span> hotels
-            </p>
             <Pagination
               currentPage={pagination.currentPage}
               totalPages={pagination.lastPage}
@@ -598,7 +590,6 @@ export function HotelList() {
               showCount={5}
               disabled={loading}
             />
-          </div>
         )}
       </Card>
 

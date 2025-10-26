@@ -25,7 +25,7 @@ export function HotelDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { hotel, loading, fetchHotel } = useHotels();
-  
+
   const [roomsPage, setRoomsPage] = useState(1);
   const [staffPage, setStaffPage] = useState(1);
   const roomsPerPage = 5;
@@ -71,9 +71,7 @@ export function HotelDetail() {
         <Card className="p-12 text-center">
           <Building2 className="h-16 w-16 mx-auto text-muted-foreground mb-4" />
           <h2 className="text-2xl font-bold mb-2">Hotel Not Found</h2>
-          <p className="text-muted-foreground mb-6">
-            The hotel you're looking for doesn't exist or has been removed.
-          </p>
+          <p className="text-muted-foreground mb-6">The hotel you're looking for doesn't exist or has been removed.</p>
           <Button onClick={() => navigate('/admin/hotels')}>
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Hotels
@@ -87,20 +85,12 @@ export function HotelDetail() {
     <div className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div className="flex items-center gap-4">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={() => navigate('/admin/hotels')}
-          >
+          <Button variant="outline" size="icon" onClick={() => navigate('/admin/hotels')}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
-              {hotel.name}
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Hotel Details
-            </p>
+            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">{hotel.name}</h1>
+            <p className="text-muted-foreground mt-1">Hotel Details</p>
           </div>
         </div>
         <Button onClick={() => navigate(`/admin/hotels/${hotel.id}/edit`)} className="gap-2">
@@ -156,9 +146,7 @@ export function HotelDetail() {
             {hotel.description && (
               <div>
                 <h3 className="text-lg font-semibold mb-2">Description</h3>
-                <p className="text-muted-foreground leading-relaxed">
-                  {hotel.description}
-                </p>
+                <p className="text-muted-foreground leading-relaxed">{hotel.description}</p>
               </div>
             )}
 
@@ -242,7 +230,7 @@ export function HotelDetail() {
             Manage Rooms
           </Button>
         </div>
-        
+
         {roomsLoading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2Icon className="h-8 w-8 animate-spin text-primary" />
@@ -290,18 +278,11 @@ export function HotelDetail() {
             </div>
 
             {hotel.rooms_paginated.meta.last_page > 1 && (
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">
-                  Showing {((hotel.rooms_paginated.meta.current_page - 1) * hotel.rooms_paginated.meta.per_page) + 1} to{' '}
-                  {Math.min(hotel.rooms_paginated.meta.current_page * hotel.rooms_paginated.meta.per_page, hotel.rooms_paginated.meta.total)} of{' '}
-                  {hotel.rooms_paginated.meta.total} rooms
-                </div>
-                <Pagination
-                  currentPage={hotel.rooms_paginated.meta.current_page}
-                  totalPages={hotel.rooms_paginated.meta.last_page}
-                  onPageChange={handleRoomsPageChange}
-                />
-              </div>
+              <Pagination
+                currentPage={hotel.rooms_paginated.meta.current_page}
+                totalPages={hotel.rooms_paginated.meta.last_page}
+                onPageChange={handleRoomsPageChange}
+              />
             )}
           </div>
         )}
@@ -357,18 +338,11 @@ export function HotelDetail() {
             </div>
 
             {hotel.staff_paginated.meta.last_page > 1 && (
-              <div className="flex items-center justify-between">
-                <div className="text-sm text-muted-foreground">
-                  Showing {((hotel.staff_paginated.meta.current_page - 1) * hotel.staff_paginated.meta.per_page) + 1} to{' '}
-                  {Math.min(hotel.staff_paginated.meta.current_page * hotel.staff_paginated.meta.per_page, hotel.staff_paginated.meta.total)} of{' '}
-                  {hotel.staff_paginated.meta.total} staff
-                </div>
-                <Pagination
-                  currentPage={hotel.staff_paginated.meta.current_page}
-                  totalPages={hotel.staff_paginated.meta.last_page}
-                  onPageChange={handleStaffPageChange}
-                />
-              </div>
+              <Pagination
+                currentPage={hotel.staff_paginated.meta.current_page}
+                totalPages={hotel.staff_paginated.meta.last_page}
+                onPageChange={handleStaffPageChange}
+              />
             )}
           </div>
         )}
@@ -376,4 +350,3 @@ export function HotelDetail() {
     </div>
   );
 }
-
