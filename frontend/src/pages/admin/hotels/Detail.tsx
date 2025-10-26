@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useHotels } from '@/hooks/admin/useHotels';
 import { Button } from '@/components/ui/button';
@@ -16,18 +16,45 @@ import {
   Briefcase,
   Calendar,
 } from 'lucide-react';
-import { Table, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Table, TableHead, TableHeader, TableRow, TableBody, TableCell } from '@/components/ui/table';
+import { Pagination } from '@/components/ui/pagination';
+import type { Room } from '@/types/hotel';
 
 export function HotelDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { hotel, loading, fetchHotel } = useHotels();
+  
+  const [roomsPage, setRoomsPage] = useState(1);
+  const [staffPage, setStaffPage] = useState(1);
+  const roomsPerPage = 5;
+  const staffPerPage = 5;
+  const [roomsLoading, setRoomsLoading] = useState(false);
+  const [staffLoading, setStaffLoading] = useState(false);
 
   useEffect(() => {
     if (id) {
-      fetchHotel(Number(id));
+      fetchHotel(Number(id), roomsPage, roomsPerPage, staffPage, staffPerPage);
     }
-  }, [id, fetchHotel]);
+  }, [id]);
+
+  const handleRoomsPageChange = async (page: number) => {
+    setRoomsLoading(true);
+    setRoomsPage(page);
+    if (id) {
+      await fetchHotel(Number(id), page, roomsPerPage, staffPage, staffPerPage, true);
+    }
+    setRoomsLoading(false);
+  };
+
+  const handleStaffPageChange = async (page: number) => {
+    setStaffLoading(true);
+    setStaffPage(page);
+    if (id) {
+      await fetchHotel(Number(id), roomsPage, roomsPerPage, page, staffPerPage, true);
+    }
+    setStaffLoading(false);
+  };
 
   if (loading) {
     return (
@@ -208,41 +235,142 @@ export function HotelDetail() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold flex items-center gap-2">
             <BedDouble className="h-5 w-5" />
-            Rooms
+            Rooms {hotel?.rooms_paginated && `(${hotel.rooms_paginated.meta.total})`}
           </h2>
           <Button variant="outline" size="sm">
             Manage Rooms
           </Button>
         </div>
-        <div className="text-center py-12 text-muted-foreground">
-          <BedDouble className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Room Name</TableHead>
-                <TableHead>Room Type</TableHead>
-                <TableHead>Room Price</TableHead>
-                <TableHead>Room Status</TableHead>
-              </TableRow>
-            </TableHeader>
-          </Table>
-        </div>
+        
+        {roomsLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2Icon className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : !hotel?.rooms_paginated || hotel.rooms_paginated.data.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            <BedDouble className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p>No rooms available</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Room Number</TableHead>
+                    <TableHead>Room Type</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Price</TableHead>
+                    <TableHead>Status</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {hotel.rooms_paginated.data.map((room: Room) => (
+                    <TableRow key={room.id}>
+                      <TableCell className="font-medium">{room.number}</TableCell>
+                      <TableCell>{room.room_type?.name || 'N/A'}</TableCell>
+                      <TableCell>{room.description || 'N/A'}</TableCell>
+                      <TableCell>{room.price.toLocaleString('vi-VN')} VND</TableCell>
+                      <TableCell>
+                        <span
+                          className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            room.status
+                              ? 'bg-green-100 text-green-700 dark:bg-green-900 dark:text-green-300'
+                              : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
+                          }`}
+                        >
+                          {room.status ? 'Available' : 'Unavailable'}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {hotel.rooms_paginated.meta.last_page > 1 && (
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-muted-foreground">
+                  Showing {((hotel.rooms_paginated.meta.current_page - 1) * hotel.rooms_paginated.meta.per_page) + 1} to{' '}
+                  {Math.min(hotel.rooms_paginated.meta.current_page * hotel.rooms_paginated.meta.per_page, hotel.rooms_paginated.meta.total)} of{' '}
+                  {hotel.rooms_paginated.meta.total} rooms
+                </div>
+                <Pagination
+                  currentPage={hotel.rooms_paginated.meta.current_page}
+                  totalPages={hotel.rooms_paginated.meta.last_page}
+                  onPageChange={handleRoomsPageChange}
+                />
+              </div>
+            )}
+          </div>
+        )}
       </Card>
 
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-xl font-bold flex items-center gap-2">
             <Users className="h-5 w-5" />
-            Staff
+            Staff {hotel?.staff_paginated && `(${hotel.staff_paginated.meta.total})`}
           </h2>
           <Button variant="outline" size="sm">
             Manage Staff
           </Button>
         </div>
-        <div className="text-center py-12 text-muted-foreground">
-          <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <p>Staff management coming soon</p>
-        </div>
+
+        {staffLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <Loader2Icon className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : !hotel?.staff_paginated || hotel.staff_paginated.data.length === 0 ? (
+          <div className="text-center py-12 text-muted-foreground">
+            <Users className="h-12 w-12 mx-auto mb-4 opacity-50" />
+            <p>No staff available</p>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            <div className="rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Email</TableHead>
+                    <TableHead>Phone</TableHead>
+                    <TableHead>Role</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {hotel.staff_paginated.data.map((staff: any) => (
+                    <TableRow key={staff.id}>
+                      <TableCell className="font-medium">{staff.name}</TableCell>
+                      <TableCell>{staff.email}</TableCell>
+                      <TableCell>{staff.phone}</TableCell>
+                      <TableCell>
+                        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300">
+                          {staff.staff_role?.name || 'N/A'}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+
+            {hotel.staff_paginated.meta.last_page > 1 && (
+              <div className="flex items-center justify-between">
+                <div className="text-sm text-muted-foreground">
+                  Showing {((hotel.staff_paginated.meta.current_page - 1) * hotel.staff_paginated.meta.per_page) + 1} to{' '}
+                  {Math.min(hotel.staff_paginated.meta.current_page * hotel.staff_paginated.meta.per_page, hotel.staff_paginated.meta.total)} of{' '}
+                  {hotel.staff_paginated.meta.total} staff
+                </div>
+                <Pagination
+                  currentPage={hotel.staff_paginated.meta.current_page}
+                  totalPages={hotel.staff_paginated.meta.last_page}
+                  onPageChange={handleStaffPageChange}
+                />
+              </div>
+            )}
+          </div>
+        )}
       </Card>
     </div>
   );

@@ -74,18 +74,64 @@ class HotelService extends BaseAdminCrudService
 
     public function find(int|string $id, array $params = []): ?\Illuminate\Database\Eloquent\Model
     {
+        $roomsPage = request()->input('rooms_page');
+        $roomsPerPage = request()->input('rooms_per_page');
+        $staffPage = request()->input('staff_page');
+        $staffPerPage = request()->input('staff_per_page');
+        $shouldPaginateRelations = $roomsPage || $staffPage;
+
         if (empty($params)) {
             $params = [
-                'relates' => [
-                    'rooms.roomType',
-                    'staff.staffRole',
-                    'services.serviceType',
-                    'bookings.user',
+                'relates' => $shouldPaginateRelations ? [] : [
+                    'services',
+                    'bookings',
                     'appointments',
                     'reviews'
                 ],
+                'relates_count' => ['rooms', 'staff', 'bookings', 'services']
             ];
         }
-        return parent::find($id, $params);
+
+        $hotel = parent::find($id, $params);
+
+        if (!$hotel || !$shouldPaginateRelations) {
+            return $hotel;
+        }
+
+        if ($roomsPage && $roomsPerPage) {
+            $rooms = $hotel->rooms()
+                ->with(['roomType'])
+                ->orderBy('created_at', 'desc')
+                ->paginate($roomsPerPage, ['*'], 'rooms_page', $roomsPage);
+
+            $hotel->setRelation('rooms_paginated', [
+                'data' => $rooms->items(),
+                'meta' => [
+                    'current_page' => $rooms->currentPage(),
+                    'per_page' => $rooms->perPage(),
+                    'total' => $rooms->total(),
+                    'last_page' => $rooms->lastPage(),
+                ]
+            ]);
+        }
+
+        if ($staffPage && $staffPerPage) {
+            $staff = $hotel->staff()
+                ->with(['staffRole'])
+                ->orderBy('created_at', 'desc')
+                ->paginate($staffPerPage, ['*'], 'staff_page', $staffPage);
+
+            $hotel->setRelation('staff_paginated', [
+                'data' => $staff->items(),
+                'meta' => [
+                    'current_page' => $staff->currentPage(),
+                    'per_page' => $staff->perPage(),
+                    'total' => $staff->total(),
+                    'last_page' => $staff->lastPage(),
+                ]
+            ]);
+        }
+
+        return $hotel;
     }
 }

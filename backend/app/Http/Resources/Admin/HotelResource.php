@@ -28,13 +28,49 @@ class HotelResource extends BaseResource
 
     protected function toDetail(Request $request): array
     {
-        return array_merge($this->toList($request), [
-            'services' => $this->services,
-            'rooms' => RoomResource::collection($this->rooms),
-            'staff' => $this->staff,
-            'bookings' => $this->bookings,
-            'appointments' => $this->appointments,
-            'reviews' => $this->reviews,
-        ]);
+        $data = $this->toList($request);
+
+        if (isset($this->rooms_paginated['data'])) {
+            $data['rooms_paginated'] = [
+                'data' => RoomResource::collection(collect($this->rooms_paginated['data']))->resolve(),
+                'meta' => $this->rooms_paginated['meta']
+            ];
+        }
+
+        if (isset($this->staff_paginated['data'])) {
+            $data['staff_paginated'] = [
+                'data' => collect($this->staff_paginated['data'])->map(function($staff) {
+                    return [
+                        'id' => $staff->id,
+                        'name' => $staff->name ?? '',
+                        'email' => $staff->email ?? '',
+                        'phone' => $staff->phone ?? '',
+                        'staff_role' => $staff->staffRole ? [
+                            'id' => $staff->staffRole->id,
+                            'name' => $staff->staffRole->name,
+                        ] : null,
+                    ];
+                }),
+                'meta' => $this->staff_paginated['meta']
+            ];
+        }
+
+        if ($this->services) {
+            $data['services'] = $this->services;
+        }
+
+        if ($this->bookings) {
+            $data['bookings'] = $this->bookings;
+        }
+
+        if ($this->appointments) {
+            $data['appointments'] = $this->appointments;
+        }
+
+        if ($this->reviews) {
+            $data['reviews'] = $this->reviews;
+        }
+
+        return $data;
     }
 }

@@ -21,7 +21,7 @@ interface UseHotelsReturn {
     lastPage: number;
   };
   fetchHotels: (filters?: HotelFilters) => Promise<void>;
-  fetchHotel: (id: number) => Promise<void>;
+  fetchHotel: (id: number, roomsPage?: number, roomsPerPage?: number, staffPage?: number, staffPerPage?: number, skipLoading?: boolean) => Promise<void>;
   createHotel: (data: HotelFormData) => Promise<boolean>;
   updateHotel: (id: number, data: HotelFormData) => Promise<boolean>;
   deleteHotel: (id: number) => Promise<boolean>;
@@ -66,10 +66,19 @@ export const useHotels = (): UseHotelsReturn => {
     }
   }, []);
 
-  const fetchHotel = useCallback(async (id: number) => {
+  const fetchHotel = useCallback(async (id: number, roomsPage = 1, roomsPerPage = 10, staffPage = 1, staffPerPage = 10, skipLoading = false) => {
     try {
-      setLoading(true);
-      const response = await axiosGet(API_ADMIN_HOTELS_SHOW(id));
+      if (!skipLoading) {
+        setLoading(true);
+      }
+      const response = await axiosGet(API_ADMIN_HOTELS_SHOW(id), {
+        params: {
+          rooms_page: roomsPage,
+          rooms_per_page: roomsPerPage,
+          staff_page: staffPage,
+          staff_per_page: staffPerPage,
+        },
+      });
 
       if (response.data) {
         setHotel(response.data);
@@ -82,7 +91,9 @@ export const useHotels = (): UseHotelsReturn => {
       });
       setHotel(null);
     } finally {
-      setLoading(false);
+      if (!skipLoading) {
+        setLoading(false);
+      }
     }
   }, []);
 

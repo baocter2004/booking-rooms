@@ -8,7 +8,6 @@ use App\Http\Requests\Admin\hotels\PostHotelRequest;
 use App\Http\Resources\Admin\HotelCollection;
 use App\Http\Resources\Admin\HotelResource;
 use App\Services\Admin\HotelService;
-use Illuminate\Http\Request;
 
 class HotelController extends BaseCrudController
 {
