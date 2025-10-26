@@ -1,16 +1,42 @@
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useAdminAuth } from '@/hooks/admin/useAdminAuth';
+import { adminLoginSchema, type AdminLoginFormData } from '@/validates/common/authSchema';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ShieldCheck } from 'lucide-react';
+import { ShieldCheck, Eye, EyeOff, Mail, Lock } from 'lucide-react';
+import { useState, useEffect } from 'react';
 
 export function AdminLogin() {
   const navigate = useNavigate();
+  const { login, isLoading, isAuthenticated } = useAdminAuth();
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    navigate('/admin/dashboard');
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<AdminLoginFormData>({
+    resolver: zodResolver(adminLoginSchema),
+    mode: 'onBlur',
+    reValidateMode: 'onChange',
+  });
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/admin/dashboard');
+    }
+  }, [isAuthenticated, navigate]);
+
+  const onSubmit = async (data: AdminLoginFormData) => {
+    try {
+      await login(data);
+    } catch (error) {
+      console.error('Login error:', error);
+    }
   };
 
   return (
@@ -26,27 +52,51 @@ export function AdminLogin() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="email">Email Address</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="admin@booking.com"
-                required
-                autoComplete="email"
-              />
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  id="email"
+                  placeholder="admin@booking.com"
+                  className="pl-10"
+                  isInvalid={!!errors.email}
+                  {...register('email')}
+                />
+              </div>
+              {errors.email && (
+                <p className="text-sm text-destructive">{errors.email.message}</p>
+              )}
             </div>
 
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                placeholder="Enter your password"
-                required
-                autoComplete="current-password"
-              />
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+                <Input
+                  id="password"
+                  type={showPassword ? 'text' : 'password'}
+                  placeholder="Enter your password"
+                  className="pl-10 pr-10"
+                  isInvalid={!!errors.password}
+                  {...register('password')}
+                />
+                <button
+                  type="button"
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
+              </div>
+              {errors.password && (
+                <p className="text-sm text-destructive">{errors.password.message}</p>
+              )}
             </div>
 
             <div className="flex items-center justify-between text-sm">
@@ -59,8 +109,8 @@ export function AdminLogin() {
               </a>
             </div>
 
-            <Button type="submit" className="w-full" size="lg">
-              Sign In as Admin
+            <Button type="submit" className="w-full" size="lg" disabled={isLoading}>
+              {isLoading ? 'Signing in...' : 'Sign In as Admin'}
             </Button>
           </form>
         </CardContent>

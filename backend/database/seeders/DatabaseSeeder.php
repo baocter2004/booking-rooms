@@ -6,6 +6,7 @@ use App\Constants\BookingConst;
 use App\Constants\RoomConst;
 use App\Constants\StaffConst;
 use App\Constants\AppointmentConst;
+use App\Constants\NotificationConst;
 use App\Constants\PostConst;
 use App\Models\Admin;
 use App\Models\User;
@@ -32,7 +33,6 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Faker\Factory as Faker;
-use NotificationConst;
 
 class DatabaseSeeder extends Seeder
 {

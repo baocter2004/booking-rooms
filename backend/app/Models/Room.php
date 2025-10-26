@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Room extends Model
 {
+    use SoftDeletes;
     /**
      * The attributes that are mass assignable.
      *
@@ -79,5 +81,10 @@ class Room extends Model
     public function availabilities(): HasMany
     {
         return $this->hasMany(Availability::class);
+    }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(RoomImage::class)->orderBy('order');
     }
 }

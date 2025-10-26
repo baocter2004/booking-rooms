@@ -5,13 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 use App\Traits\HasRoleGuard;
 
 class Staff extends Authenticatable implements JWTSubject
 {
-    use HasRoleGuard;
+    use HasRoleGuard, SoftDeletes;
     /**
      * The attributes that are mass assignable.
      *

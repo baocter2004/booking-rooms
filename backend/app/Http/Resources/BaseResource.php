@@ -11,7 +11,7 @@ abstract class BaseResource extends JsonResource
 {
     protected bool $showDetail = false;
 
-    public function __construct($resource, bool $showDetail = NULL)
+    public function __construct($resource, ?bool $showDetail = null)
     {
         parent::__construct($resource);
         if ($showDetail) {
@@ -26,6 +26,20 @@ abstract class BaseResource extends JsonResource
     final public function toArray(Request $request)
     {
         return $this->showDetail ? $this->toDetail($request) : $this->toList($request);
+    }
+
+    /**
+     * Add success and message to the response
+     *
+     * @param Request $request
+     * @return array<string, mixed>
+     */
+    public function with(Request $request): array
+    {
+        return [
+            'success' => true,
+            'message' => 'success',
+        ];
     }
 
       /**
