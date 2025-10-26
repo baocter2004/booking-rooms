@@ -17,24 +17,28 @@ class UploadController extends ApiController
             'folder' => 'nullable|string|in:hotels,users,rooms,services,posts',
         ]);
 
+        $path = null;
+
         try {
             $folder = $request->input('folder', 'images');
             $image = $request->file('image');
-            
+
             $filename = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
-            
+
             $path = $image->storeAs($folder, $filename, 'public');
-            
-            // Get full URL
+
             $url = Storage::url($path);
-            
+
             return $this->json([
                 'url' => $url,
                 'path' => $path,
                 'filename' => $filename,
             ], JsonResponse::HTTP_OK, 'Image uploaded successfully');
-            
         } catch (\Exception $e) {
+            if ($path && Storage::disk('public')->exists($path)) {
+                Storage::disk('public')->delete($path);
+            }
+
             return $this->json(
                 statusCode: JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
                 message: 'Failed to upload image: ' . $e->getMessage()
@@ -50,23 +54,18 @@ class UploadController extends ApiController
 
         try {
             $path = $request->input('path');
-            
-            // Remove leading slash if present
             $path = ltrim($path, '/');
-            
-            // Remove /storage/ prefix if present
             $path = str_replace('storage/', '', $path);
-            
+
             if (Storage::disk('public')->exists($path)) {
                 Storage::disk('public')->delete($path);
                 return $this->json([], JsonResponse::HTTP_OK, 'Image deleted successfully');
             }
-            
+
             return $this->json(
                 statusCode: JsonResponse::HTTP_NOT_FOUND,
                 message: 'Image not found'
             );
-            
         } catch (\Exception $e) {
             return $this->json(
                 statusCode: JsonResponse::HTTP_INTERNAL_SERVER_ERROR,
@@ -75,4 +74,3 @@ class UploadController extends ApiController
         }
     }
 }
-

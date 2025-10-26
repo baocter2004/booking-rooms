@@ -3,6 +3,7 @@ import { Button } from './button';
 import { Upload, X, Loader2 } from 'lucide-react';
 import { axiosPost } from '@/libs/axios';
 import { toast } from 'sonner';
+import { getImageUrl } from '@/utils/image';
 
 interface ImageUploadProps {
   value?: string;
@@ -28,13 +29,11 @@ export function ImageUpload({
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file');
       return;
     }
 
-    // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
       toast.error('Image size must be less than 5MB');
       return;
@@ -64,7 +63,6 @@ export function ImageUpload({
       toast.error(error.message || 'Failed to upload image');
     } finally {
       setUploading(false);
-      // Reset input
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
@@ -75,7 +73,6 @@ export function ImageUpload({
     if (!value) return;
 
     try {
-      // Optional: delete from server
       if (onRemove) {
         onRemove();
       } else {
@@ -92,11 +89,7 @@ export function ImageUpload({
     <div className={`space-y-4 ${className}`}>
       {value && (
         <div className="relative inline-block">
-          <img
-            src={value}
-            alt="Uploaded"
-            className="w-full h-48 object-cover rounded-lg border"
-          />
+          <img src={getImageUrl(value)} alt="Uploaded" className="w-full h-48 object-cover rounded-lg border" />
           <Button
             type="button"
             variant="destructive"
@@ -138,13 +131,8 @@ export function ImageUpload({
             </>
           )}
         </Button>
-        {!value && (
-          <span className="text-sm text-muted-foreground">
-            Max size: 5MB. Supported: JPG, PNG, GIF, WebP
-          </span>
-        )}
+        {!value && <span className="text-sm text-muted-foreground">Max size: 5MB. Supported: JPG, PNG, GIF, WebP</span>}
       </div>
     </div>
   );
 }
-

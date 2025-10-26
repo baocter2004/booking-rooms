@@ -82,4 +82,9 @@ class Room extends Model
     {
         return $this->hasMany(Availability::class);
     }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(RoomImage::class)->orderBy('order');
+    }
 }

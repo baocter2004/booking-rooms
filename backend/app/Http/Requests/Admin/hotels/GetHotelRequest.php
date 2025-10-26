@@ -14,7 +14,20 @@ class GetHotelRequest extends BaseAdminRequest
     public function rules(): array
     {
         return [
-            //
+            'search' => 'nullable|string|max:255',
+            'name' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:500',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:20',
+            'from_date' => 'nullable|date',
+            'to_date' => 'nullable|date|after_or_equal:from_date',
+            'page' => 'nullable|integer|min:1',
+            'per_page' => 'nullable|integer|min:1|max:100',
+            'sort' => 'nullable|string',
+            'rooms_page' => 'nullable|integer|min:1',
+            'rooms_per_page' => 'nullable|integer|min:1|max:100',
+            'staff_page' => 'nullable|integer|min:1',
+            'staff_per_page' => 'nullable|integer|min:1|max:100',
         ];
     }
 }

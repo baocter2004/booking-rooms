@@ -13,6 +13,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Badge } from '@/components/ui/badge';
 import { Pagination } from '@/components/ui/pagination';
 import { Select, SelectTrigger, SelectContent, SelectItem } from '@/components/ui/select';
+import { getImageUrl } from '@/utils/image';
 import {
   Building2,
   Plus,
@@ -475,7 +476,7 @@ export function HotelList() {
                       <div className="flex items-start gap-3 max-w-xs">
                         {hotel.image_url ? (
                           <img
-                            src={hotel.image_url}
+                            src={getImageUrl(hotel.image_url)}
                             alt={hotel.name}
                             className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
                           />

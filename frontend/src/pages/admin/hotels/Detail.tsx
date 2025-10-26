@@ -19,6 +19,7 @@ import {
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableCell } from '@/components/ui/table';
 import { Pagination } from '@/components/ui/pagination';
 import type { Room } from '@/types/hotel';
+import { getImageUrl } from '@/utils/image';
 
 export function HotelDetail() {
   const { id } = useParams<{ id: string }>();
@@ -113,7 +114,7 @@ export function HotelDetail() {
           <div className="lg:col-span-1">
             {hotel.image_url ? (
               <img
-                src={hotel.image_url}
+                src={getImageUrl(hotel.image_url)}
                 alt={hotel.name}
                 className="w-full h-64 object-cover rounded-lg"
               />

@@ -4,6 +4,15 @@ export interface RoomType {
   description?: string;
 }
 
+export interface RoomImage {
+  id: number;
+  room_id: number;
+  image_url: string;
+  order: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
 export interface Room {
   id: number;
   number: string;
@@ -15,6 +24,16 @@ export interface Room {
   hotel_id: number;
   room_type_id: number;
   room_type?: RoomType;
+  images?: RoomImage[];
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface HotelImage {
+  id: number;
+  hotel_id: number;
+  image_url: string;
+  order: number;
   created_at?: string;
   updated_at?: string;
 }
@@ -27,6 +46,7 @@ export interface Hotel {
   email: string;
   description?: string;
   image_url?: string;
+  images?: HotelImage[];
   created_at?: string;
   updated_at?: string;
   deleted_at?: string | null;
@@ -61,6 +81,45 @@ export interface HotelFormData {
   email: string;
   description?: string;
   image_url?: string;
+  images?: string[];
+  rooms?: Array<{
+    id?: string;
+    name: string;
+    number: string;
+    price: number;
+    description: string;
+    image_url: string;
+    images?: string[];
+    room_type_id: number;
+    status?: number;
+  }>;
+  services?: Array<{
+    id?: string;
+    name: string;
+    price: number;
+    duration: number;
+    description: string;
+    image_url: string;
+    service_type_id: number;
+  }>;
+}
+
+export interface RoomFormData {
+  id?: string;
+  name: string;
+  price: number;
+  description: string;
+  image_url: string;
+  images?: string[];
+}
+
+export interface ServiceFormData {
+  id?: string;
+  name: string;
+  price: number;
+  duration: number;
+  description: string;
+  image_url: string;
 }
 
 export interface HotelListResponse {

@@ -73,4 +73,9 @@ class Hotel extends Model
     {
         return $this->hasManyThrough(Review::class, Booking::class);
     }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(HotelImage::class)->orderBy('order');
+    }
 }

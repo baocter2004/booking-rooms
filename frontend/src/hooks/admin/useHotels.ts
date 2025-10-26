@@ -106,8 +106,12 @@ export const useHotels = (): UseHotelsReturn => {
         toast.success('Hotel created successfully');
         return true;
       } else {
+        const errorMessage = response.errors 
+          ? Object.values(response.errors).flat().join(', ')
+          : response.message || 'An error occurred';
+        
         toast.error('Failed to create hotel', {
-          description: response.message || 'An error occurred',
+          description: errorMessage,
         });
         return false;
       }
@@ -130,8 +134,12 @@ export const useHotels = (): UseHotelsReturn => {
         toast.success('Hotel updated successfully');
         return true;
       } else {
+        const errorMessage = response.errors 
+          ? Object.values(response.errors).flat().join(', ')
+          : response.message || 'An error occurred';
+        
         toast.error('Failed to update hotel', {
-          description: response.message || 'An error occurred',
+          description: errorMessage,
         });
         return false;
       }
