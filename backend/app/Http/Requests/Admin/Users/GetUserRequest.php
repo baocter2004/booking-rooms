@@ -14,7 +14,11 @@ class GetUserRequest extends BaseAdminRequest
     public function rules(): array
     {
         return [
-            //
+            'name' => 'nullable',
+            'email' => 'nullable',
+            'phone' => 'nullable',
+            'from_date' => 'date|nullable',
+            'to_date' => 'date|nullable'
         ];
     }
 }

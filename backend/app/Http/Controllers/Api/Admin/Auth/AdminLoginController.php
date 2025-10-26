@@ -14,7 +14,7 @@ class AdminLoginController extends ApiController
             return $this->json(statusCode: JsonResponse::HTTP_BAD_REQUEST, message: 'Email or password is not correct.');
         }
 
-        return $this->json($this->respondWithToken($token), JsonResponse::HTTP_OK, 'Login Successful');
+        return $this->json($this->respondWithTokenAndUser($token, 'admin'), JsonResponse::HTTP_OK, 'Login Successful');
     }
 
     public function logout(): JsonResponse

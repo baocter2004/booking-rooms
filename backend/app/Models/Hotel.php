@@ -5,9 +5,11 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Hotel extends Model
 {
+    use SoftDeletes;
     /**
      * The attributes that are mass assignable.
      *
@@ -70,5 +72,10 @@ class Hotel extends Model
     public function reviews(): HasManyThrough
     {
         return $this->hasManyThrough(Review::class, Booking::class);
+    }
+
+    public function images(): HasMany
+    {
+        return $this->hasMany(HotelImage::class)->orderBy('order');
     }
 }

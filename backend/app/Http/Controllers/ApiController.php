@@ -47,4 +47,30 @@ class ApiController extends Controller
             'expires_at' => now()->addMinutes(config('jwt.ttl')),
         ];
     }
+
+    /**
+     * Get the token and user data response
+     *
+     * @param string $token
+     * @param string|null $guard
+     * @return array
+     */
+    protected function respondWithTokenAndUser(string $token, ?string $guard = null): array
+    {
+        $user = $this->auth($guard)->user();
+
+        return [
+            'access_token' => $token,
+            'token_type' => 'bearer',
+            'expires_at' => now()->addMinutes(config('jwt.ttl')),
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone ?? null,
+                'avatar' => $user->avatar ?? null,
+                'role' => $guard ?? 'user',
+            ]
+        ];
+    }
 }
