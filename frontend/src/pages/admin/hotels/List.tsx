@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useHotels } from '@/hooks/admin/useHotels';
 import { DEFAULT_SORT, type HotelFilters } from '@/constants/filters';
+import { hotelFilterSchema, type HotelFilterData } from '@/validates/admin/hotelSchema';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -60,33 +63,50 @@ export function HotelList() {
   const { hotels, loading, pagination, fetchHotels, deleteHotel } = useHotels();
 
   const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
-  const [filters, setFilters] = useState<SearchFilters>(DEFAULT_FILTERS);
   const [activeFilters, setActiveFilters] = useState<SearchFilters>(DEFAULT_FILTERS);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletingHotelId, setDeletingHotelId] = useState<number | null>(null);
+
+  const {
+    handleSubmit,
+    watch,
+    reset,
+    setValue,
+    formState: { errors },
+  } = useForm<HotelFilterData>({
+    resolver: zodResolver(hotelFilterSchema),
+    defaultValues: DEFAULT_FILTERS,
+    mode: 'onChange',
+  });
+
+  const filters = watch();
 
   useEffect(() => {
     fetchHotels();
   }, [fetchHotels]);
 
-  const handleSearch = () => {
-    setActiveFilters(filters);
-    fetchHotels({ ...filters, page: 1 });
+  const onSubmit = (data: HotelFilterData) => {
+    const searchFilters = { ...data } as SearchFilters;
+    setActiveFilters(searchFilters);
+    fetchHotels({ ...searchFilters, page: 1 });
   };
 
   const handleClearSearch = () => {
-    setFilters(DEFAULT_FILTERS);
+    reset(DEFAULT_FILTERS);
     setActiveFilters(DEFAULT_FILTERS);
     fetchHotels();
   };
 
   const handleFilterChange = (key: keyof SearchFilters, value: string) => {
-    setFilters((prev) => ({ ...prev, [key]: value }));
+    setValue(key as keyof HotelFilterData, value, { 
+      shouldValidate: true,
+      shouldDirty: true 
+    });
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      handleSearch();
+      handleSubmit(onSubmit)();
     }
   };
 
@@ -133,8 +153,10 @@ export function HotelList() {
   };
 
   const handleRemoveFilter = (key: keyof SearchFilters) => {
-    const newFilters = { ...activeFilters, [key]: key === 'sort' ? DEFAULT_SORT : '' };
-    setFilters(newFilters);
+    const newValue = key === 'sort' ? DEFAULT_SORT : '';
+    setValue(key as keyof HotelFilterData, newValue, { shouldValidate: true });
+    
+    const newFilters = { ...activeFilters, [key]: newValue };
     setActiveFilters(newFilters);
     fetchHotels({ ...newFilters, page: 1 });
   };
@@ -193,7 +215,7 @@ export function HotelList() {
                 </Badge>
               )}
             </Button>
-            <Button onClick={handleSearch} variant="default" disabled={loading}>
+            <Button onClick={handleSubmit(onSubmit)} variant="default" disabled={loading || !!errors.from_date}>
               <Search className="h-4 w-4 mr-2" />
               Search
             </Button>
@@ -261,9 +283,10 @@ export function HotelList() {
                   <Input
                     id="filter-from-date"
                     type="date"
-                    value={filters.from_date}
+                    value={filters.from_date || ''}
                     onChange={(e) => handleFilterChange('from_date', e.target.value)}
-                    className="pl-10"
+                    max={filters.to_date || undefined}
+                    className={`pl-10 ${errors.from_date ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                   />
                 </div>
               </div>
@@ -274,15 +297,22 @@ export function HotelList() {
                   <Input
                     id="filter-to-date"
                     type="date"
-                    value={filters.to_date}
+                    value={filters.to_date || ''}
                     onChange={(e) => handleFilterChange('to_date', e.target.value)}
-                    className="pl-10"
+                    min={filters.from_date || undefined}
+                    className={`pl-10 ${errors.from_date ? 'border-red-500 focus-visible:ring-red-500' : ''}`}
                   />
                 </div>
               </div>
             </div>
 
-            {/* Sort Options */}
+            {errors.from_date && (
+              <div className="flex items-center gap-2 text-sm text-red-600 bg-red-50 p-3 rounded-md">
+                <X className="h-4 w-4" />
+                <span>{errors.from_date.message}</span>
+              </div>
+            )}
+
             <div className="flex items-end gap-4">
               <div className="flex-1 max-w-xs">
                 <Label htmlFor="sort">Sort By</Label>

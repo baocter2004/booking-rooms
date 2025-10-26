@@ -60,8 +60,6 @@ class HotelService extends BaseAdminCrudService
             $whereLikes['phone'] = $params['phone'];
         }
 
-        // dd($params)
-
         return [
             'wheres' => $wheres,
             'likes' => $whereLikes,

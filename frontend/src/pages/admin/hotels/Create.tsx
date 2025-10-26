@@ -29,6 +29,7 @@ export function HotelCreate() {
     watch,
   } = useForm<HotelFormData>({
     resolver: zodResolver(hotelSchema),
+    mode: 'onChange',
     defaultValues: {
       name: '',
       address: '',
