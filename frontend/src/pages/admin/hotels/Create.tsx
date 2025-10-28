@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card } from '@/components/ui/card';
 import { ImageUpload } from '@/components/ui/image-upload';
+import { CurrencyInput } from '@/components/ui/currency-input';
 import { hotelSchema, type HotelFormData } from '@/validates/admin/hotelSchema';
 import type { RoomFormData, ServiceFormData } from '@/types/hotel';
 import { Building2, ArrowLeft, Save, Loader2Icon, Plus, Trash2, DoorOpen, Sparkles } from 'lucide-react';
@@ -333,11 +334,10 @@ export function HotelCreate() {
                       <Label>
                         Price per Night <span className="text-destructive">*</span>
                       </Label>
-                      <Input
-                        type="number"
-                        placeholder="100"
+                      <CurrencyInput
+                        placeholder="1,000,000"
                         value={room.price}
-                        onChange={(e) => updateRoom(room.id!, 'price', parseFloat(e.target.value) || 0)}
+                        onChange={(value) => updateRoom(room.id!, 'price', value)}
                         disabled={isSubmitting || loading}
                       />
                     </div>
@@ -472,11 +472,10 @@ export function HotelCreate() {
                       <Label>
                         Price <span className="text-destructive">*</span>
                       </Label>
-                      <Input
-                        type="number"
-                        placeholder="50"
+                      <CurrencyInput
+                        placeholder="500,000"
                         value={service.price}
-                        onChange={(e) => updateService(service.id!, 'price', parseFloat(e.target.value) || 0)}
+                        onChange={(value) => updateService(service.id!, 'price', value)}
                         disabled={isSubmitting || loading}
                       />
                     </div>

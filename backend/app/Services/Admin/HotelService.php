@@ -41,10 +41,10 @@ class HotelService extends BaseAdminCrudService
 
         if (!empty($params['search'])) {
             $searchTerm = $params['search'];
-            $orWheres[] = ['name', 'LIKE', '%' . $searchTerm . '%'];
-            $orWheres[] = ['address', 'LIKE', '%' . $searchTerm . '%'];
-            $orWheres[] = ['email', 'LIKE', '%' . $searchTerm . '%'];
-            $orWheres[] = ['phone', 'LIKE', '%' . $searchTerm . '%'];
+            $orWheres['name'] = ['LIKE', '%' . $searchTerm . '%'];
+            $orWheres['address'] = ['LIKE', '%' . $searchTerm . '%'];
+            $orWheres['email'] = ['LIKE', '%' . $searchTerm . '%'];
+            $orWheres['phone'] = ['LIKE', '%' . $searchTerm . '%'];
         }
 
         if (!empty($params['name'])) {

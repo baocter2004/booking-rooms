@@ -178,9 +178,14 @@ abstract class BaseRepository
                 }
             })
             ->when(!empty($orWheres), function ($query) use ($orWheres) {
-                $query->where(function ($query) use ($orWheres) {
-                    foreach ($orWheres as $value) {
-                        $query->orWhere($value);
+                $query->where(function ($subQuery) use ($orWheres) {
+                    foreach ($orWheres as $column => $condition) {
+                        if (is_array($condition) && isset($condition[0], $condition[1])) {
+                            [$operator, $value] = $condition;
+                            $subQuery->orWhere($column, $operator, $value);
+                        } else {
+                            $subQuery->orWhere($column, $condition);
+                        }
                     }
                 });
             })
