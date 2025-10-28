@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\BaseCrudController;
-use App\Http\Requests\Admin\room_types\GetRoomTypeRequest;
-use App\Http\Requests\Admin\room_types\PostRoomTypeRequest;
+use App\Http\Requests\Admin\RoomTypes\GetRoomTypeRequest;
+use App\Http\Requests\Admin\RoomTypes\PostRoomTypeRequest;
 use App\Http\Resources\Admin\RoomTypeCollection;
 use App\Http\Resources\Admin\RoomTypeResource;
 use App\Services\Admin\RoomTypeService;

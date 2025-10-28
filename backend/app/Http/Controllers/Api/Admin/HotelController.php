@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\BaseCrudController;
-use App\Http\Requests\Admin\hotels\GetHotelRequest;
-use App\Http\Requests\Admin\hotels\PostHotelRequest;
+use App\Http\Requests\Admin\Hotels\GetHotelRequest;
+use App\Http\Requests\Admin\Hotels\PostHotelRequest;
 use App\Http\Resources\Admin\HotelCollection;
 use App\Http\Resources\Admin\HotelResource;
 use App\Services\Admin\HotelService;

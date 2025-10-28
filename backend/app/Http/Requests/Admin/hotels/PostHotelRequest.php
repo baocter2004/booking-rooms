@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Admin\hotels;
+namespace App\Http\Requests\Admin\Hotels;
 
 use App\Constants\RoomConst;
 use App\Constants\StaffConst;

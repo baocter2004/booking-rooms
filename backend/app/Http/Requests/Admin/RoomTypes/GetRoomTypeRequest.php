@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Admin\room_types;
+namespace App\Http\Requests\Admin\RoomTypes;
 
 use App\Http\Requests\BaseAdminRequest;
 
