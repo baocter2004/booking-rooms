@@ -15,8 +15,9 @@ return Application::configure(basePath: dirname(__DIR__))
             Route::prefix('api')->group(function () {
                 require __DIR__ . '/../routes/api.php';
                 require __DIR__ . '/../routes/api-admin.php';
-                require __DIR__ . '/../routes/api-user.php';
+                require __DIR__ . '/../routes/api-hotel-owner.php';
                 require __DIR__ . '/../routes/api-staff.php';
+                require __DIR__ . '/../routes/api-user.php';
             });
         },
         commands: __DIR__ . '/../routes/console.php',

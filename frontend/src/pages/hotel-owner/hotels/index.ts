@@ -1,0 +1,2 @@
+export { HotelOwnerHotelList } from './List';
+

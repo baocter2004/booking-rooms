@@ -44,13 +44,17 @@ return [
             'driver' => 'jwt',
             'provider' => 'admins'
         ],
-        'user' => [
+        'hotel_owner' => [
             'driver' => 'jwt',
-            'provider' => 'users'
+            'provider' => 'hotel_owners'
         ],
         'staff' => [
             'driver' => 'jwt',
             'provider' => 'staffs'
+        ],
+        'user' => [
+            'driver' => 'jwt',
+            'provider' => 'users'
         ]
     ],
 
@@ -80,6 +84,11 @@ return [
         'admins' => [
             'driver' => 'eloquent',
             'model' => App\Models\Admin::class,
+        ],
+
+        'hotel_owners' => [
+            'driver' => 'eloquent',
+            'model' => App\Models\HotelOwner::class,
         ],
 
         'staffs' => [

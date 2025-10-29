@@ -5,8 +5,9 @@ namespace App\Enums;
 enum RoleType: string
 {
     case ADMIN = 'admin';
-    case USER = 'user';
+    case HOTEL_OWNER = 'hotel_owner';
     case STAFF = 'staff';
+    case USER = 'user';
 
     /**
      * Get all role values
@@ -55,8 +56,9 @@ enum RoleType: string
     {
         return match($this) {
             self::ADMIN => 'Administrator',
-            self::USER => 'User',
+            self::HOTEL_OWNER => 'Hotel Owner',
             self::STAFF => 'Staff Member',
+            self::USER => 'User',
         };
     }
 }

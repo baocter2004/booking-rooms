@@ -9,6 +9,7 @@ use App\Constants\AppointmentConst;
 use App\Constants\NotificationConst;
 use App\Constants\PostConst;
 use App\Models\Admin;
+use App\Models\HotelOwner;
 use App\Models\User;
 use App\Models\Staff;
 use App\Models\Hotel;
@@ -59,6 +60,9 @@ class DatabaseSeeder extends Seeder
             'phone' => '0901234568',
         ]);
 
+        $this->command->info('🏨 Seeding Hotel Owners...');
+        $this->call(HotelOwnerSeeder::class);
+
         $this->command->info('👥 Seeding Users...');
         
         $users = collect();
@@ -82,30 +86,38 @@ class DatabaseSeeder extends Seeder
 
         $this->command->info('🏨 Seeding Hotels...');
         
+        $hotelOwners = HotelOwner::all();
+        
         $hotels = collect([
             Hotel::create([
+                'hotel_owner_id' => $hotelOwners->get(0)->id ?? null,
                 'name' => 'Grand Ocean Hotel',
                 'address' => '123 Beach Road, Da Nang',
                 'phone' => '0236 3812345',
                 'email' => 'info@grandocean.com',
                 'description' => 'Luxury beachfront hotel with stunning ocean views',
                 'image_url' => 'https://images.unsplash.com/photo-1566073771259-6a8506099945',
+                'status' => 1,
             ]),
             Hotel::create([
+                'hotel_owner_id' => $hotelOwners->get(0)->id ?? null,
                 'name' => 'Mountain View Resort',
                 'address' => '456 Highland Street, Sapa',
                 'phone' => '0214 3871234',
                 'email' => 'contact@mountainview.com',
                 'description' => 'Peaceful mountain retreat with panoramic views',
                 'image_url' => 'https://images.unsplash.com/photo-1564501049412-61c2a3083791',
+                'status' => 1,
             ]),
             Hotel::create([
+                'hotel_owner_id' => $hotelOwners->get(1)->id ?? null,
                 'name' => 'City Center Plaza',
                 'address' => '789 Downtown Avenue, Ho Chi Minh',
                 'phone' => '028 38123456',
                 'email' => 'hello@cityplaza.com',
                 'description' => 'Modern hotel in the heart of the city',
                 'image_url' => 'https://images.unsplash.com/photo-1551882547-ff40c63fe5fa',
+                'status' => 1,
             ]),
         ]);
 
@@ -871,6 +883,7 @@ class DatabaseSeeder extends Seeder
         $this->command->info('');
         $this->command->info('📊 Summary:');
         $this->command->info("   - Admins: " . Admin::count());
+        $this->command->info("   - Hotel Owners: " . HotelOwner::count());
         $this->command->info("   - Users: " . User::count());
         $this->command->info("   - Hotels: " . Hotel::count());
         $this->command->info("   - Room Types: " . RoomType::count());
@@ -893,6 +906,7 @@ class DatabaseSeeder extends Seeder
         $this->command->info('');
         $this->command->info('🔐 Test Credentials:');
         $this->command->info('   Admin: admin@example.com / admin123');
+        $this->command->info('   Hotel Owner: owner@hotel.com / password123');
         $this->command->info('   User: user@example.com / password');
         $this->command->info('   Staff: (any staff email) / staff123');
     }
