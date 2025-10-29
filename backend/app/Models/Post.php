@@ -20,7 +20,6 @@ class Post extends Model
         'excerpt',
         'content',
         'featured_image',
-        'gallery',
         'status',
         'is_featured',
         'allow_comments',
@@ -31,7 +30,6 @@ class Post extends Model
     protected function casts(): array
     {
         return [
-            'gallery' => 'array',
             'status' => 'integer',
             'is_featured' => 'boolean',
             'allow_comments' => 'boolean',
@@ -56,6 +54,14 @@ class Post extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(PostCategory::class, 'post_category_id');
+    }
+
+    /**
+     * Get all gallery images for this post
+     */
+    public function gallery(): HasMany
+    {
+        return $this->hasMany(PostGallery::class)->orderBy('order');
     }
 
     /**

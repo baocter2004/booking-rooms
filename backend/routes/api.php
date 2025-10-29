@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\Admin\Auth\AdminLoginController;
 use App\Http\Controllers\Api\Client\Auth\UserLoginController;
+use App\Http\Controllers\Api\HotelOwner\Auth\HotelOwnerLoginController;
 use App\Http\Controllers\Api\Staff\Auth\StaffLoginController;
 
 Route::prefix('admin')
@@ -15,12 +16,12 @@ Route::prefix('admin')
     });
 
 
-Route::prefix('user')
-    ->name('user.')
+Route::prefix('hotel-owner')
+    ->name('hotel-owner.')
     ->group(function () {
-        Route::post('login', [UserLoginController::class, 'login'])->name('login');
-        Route::post('logout', [UserLoginController::class, 'logout'])
-            ->middleware('auth:user')
+        Route::post('login', [HotelOwnerLoginController::class, 'login'])->name('login');
+        Route::post('logout', [HotelOwnerLoginController::class, 'logout'])
+            ->middleware('auth:hotel_owner')
             ->name('logout');
     });
 
@@ -31,5 +32,15 @@ Route::prefix('staff')
         Route::post('login', [StaffLoginController::class, 'login'])->name('login');
         Route::post('logout', [StaffLoginController::class, 'logout'])
             ->middleware('auth:staff')
+            ->name('logout');
+    });
+
+
+Route::prefix('user')
+    ->name('user.')
+    ->group(function () {
+        Route::post('login', [UserLoginController::class, 'login'])->name('login');
+        Route::post('logout', [UserLoginController::class, 'logout'])
+            ->middleware('auth:user')
             ->name('logout');
     });
