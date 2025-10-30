@@ -2,6 +2,11 @@ export interface RoomType {
   id: number;
   name: string;
   description?: string;
+  display_name?: string;
+  capacity?: number;
+  base_price?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface RoomTypeFormData {

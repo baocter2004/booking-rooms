@@ -26,7 +26,7 @@ export const adminMenuGroups = [
     items: [
       { title: 'Hotels', href: '/admin/hotels', icon: Hotel },
       { title: 'Rooms', href: '/admin/rooms', icon: DoorOpen },
-      { title: 'Room Types', href: '/admin/room-typ', icon: Home},
+      { title: 'Room Types', href: '/admin/room-types', icon: Home},
       { title: 'Bookings', href: '/admin/bookings', icon: Calendar, badge: '5' },
       { title: 'Users', href: '/admin/users', icon: Users },
       { title: 'Staff', href: '/admin/staff', icon: UserCog },
