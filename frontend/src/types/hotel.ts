@@ -1,8 +1,4 @@
-export interface RoomType {
-  id: number;
-  name: string;
-  description?: string;
-}
+import type { RoomType } from "./room-types";
 
 export interface RoomImage {
   id: number;
