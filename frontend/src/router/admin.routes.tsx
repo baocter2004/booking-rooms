@@ -4,6 +4,7 @@ import { AdminLogin } from '@/pages/admin/auth/Login';
 import { AdminDashboard } from '@/pages/admin/Dashboard';
 import { HotelList, HotelDetail, HotelCreate, HotelEdit } from '@/pages/admin/hotels';
 import { AdminLayout } from '@/layouts/admin/AdminLayout';
+import { RoomTypeList } from '@/pages/admin/room-types/List';
 
 export const adminRoutes = (
   <>
@@ -74,6 +75,16 @@ export const adminRoutes = (
         <ProtectedRoute allowedRoles={['admin']} currentRole="admin">
           <AdminLayout title="Rooms Management">
             <div>Rooms Page (Coming Soon)</div>
+          </AdminLayout>
+        </ProtectedRoute>
+      }
+    />
+    <Route
+      path="/admin/room-types"
+      element={
+        <ProtectedRoute allowedRoles={['admin']} currentRole="admin">
+          <AdminLayout title="Room Types Management">
+            <RoomTypeList />
           </AdminLayout>
         </ProtectedRoute>
       }

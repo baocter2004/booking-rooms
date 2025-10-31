@@ -14,6 +14,12 @@ export const API_ADMIN_HOTELS_CREATE = '/admin/hotels';
 export const API_ADMIN_HOTELS_UPDATE = (id: number) => `/admin/hotels/${id}`;
 export const API_ADMIN_HOTELS_DELETE = (id: number) => `/admin/hotels/${id}`;
 
+// Admin - Room types
+export const API_ADMIN_ROOM_TYPES = '/admin/room-types';
+export const API_ADMIN_ROOM_TYPES_SHOW = (id: number) => `/admin/room-types/${id}`;
+export const API_ADMIN_ROOM_TYPES_CREATE = '/admin/room-types';
+export const API_ADMIN_ROOM_TYPES_UPDATE = (id: number) => `/admin/room-types/${id}`;
+export const API_ADMIN_ROOM_TYPES_DELETE = (id: number) => `/admin/room-types/${id}`;
 // Admin - Rooms
 export const API_ADMIN_ROOMS = '/admin/rooms';
 export const API_ADMIN_ROOMS_SHOW = (id: number) => `/admin/rooms/${id}`;

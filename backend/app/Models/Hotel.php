@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -16,15 +17,32 @@ class Hotel extends Model
      * @var array<string>
      */
     protected $fillable = [
+        'hotel_owner_id',
         'name',
         'address',
         'phone',
         'email',
         'description',
         'image_url',
+        'status',
     ];
 
+    protected function casts(): array
+    {
+        return [
+            'status' => 'integer',
+        ];
+    }
+
     // Relationships
+
+    /**
+     * Get the owner of this hotel
+     */
+    public function owner(): BelongsTo
+    {
+        return $this->belongsTo(HotelOwner::class, 'hotel_owner_id');
+    }
 
     /**
      * Get all services offered by this hotel

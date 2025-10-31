@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests\Admin\rooms;
+namespace App\Http\Requests\Admin\Rooms;
 
 use App\Constants\RoomConst;
 use App\Http\Requests\BaseAdminRequest;

@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { adminRoutes } from './admin.routes';
+import { hotelOwnerRoutes } from './hotel-owner.routes';
 import { staffRoutes } from './staff.routes';
 import { userRoutes } from './user.routes';
 import ScrollToTop from '../components/ui/top';
@@ -11,9 +12,12 @@ export function AppRouter() {
       <Routes>
         <Route path="/" element={<Navigate to="/user/login" replace />} />
         <Route path="/admin" element={<Navigate to="/admin/login" replace />} />
+        <Route path="/hotel-owner" element={<Navigate to="/hotel-owner/login" replace />} />
         <Route path="/staff" element={<Navigate to="/staff/login" replace />} />
 
         {adminRoutes}
+
+        {hotelOwnerRoutes}
 
         {staffRoutes}
 

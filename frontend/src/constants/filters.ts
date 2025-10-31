@@ -16,6 +16,17 @@ export interface HotelFilters extends BaseFilters {
   to_date?: string;
 }
 
+export interface RoomTypeFilters extends BaseFilters {
+  from_date?: string;
+  to_date?: string;
+  name?: string;
+  display_name?: string;
+  description?: string;
+  capacity?: number;
+  from_base_price?: string;
+  to_base_pricce?: string;
+}
+
 export const buildQueryParams = <T extends BaseFilters>(
   filters: T,
   defaults: { page?: number; sort?: string } = { page: DEFAULT_PAGE, sort: DEFAULT_SORT },

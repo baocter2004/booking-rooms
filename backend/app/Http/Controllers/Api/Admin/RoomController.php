@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Api\Admin;
 
 use App\Http\Controllers\BaseCrudController;
-use App\Http\Requests\Admin\rooms\GetRoomRequest;
-use App\Http\Requests\Admin\rooms\PostRoomRequest;
+use App\Http\Requests\Admin\Rooms\GetRoomRequest;
+use App\Http\Requests\Admin\Rooms\PostRoomRequest;
 use App\Http\Resources\Admin\RoomCollection;
 use App\Http\Resources\Admin\RoomResource;
 use App\Services\Admin\RoomService;
