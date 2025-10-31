@@ -46,11 +46,11 @@ export function RoomTypeList() {
             </Button>
           </DialogTrigger>
           <DialogContent>
-            <DialogHeader>
+            <DialogHeader className="px-2">
               <DialogTitle>Add Room Type</DialogTitle>
               <DialogDescription>Add a new room type to the system</DialogDescription>
             </DialogHeader>
-            <form className="space-y-4 mt-4 overflow-y-auto max-h-[70vh]">
+            <form className="space-y-4 px-2 mt-4 overflow-y-auto max-h-[70vh]">
               <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
                 <Input id="name" placeholder="Enter room type name" className="mt-2" />
